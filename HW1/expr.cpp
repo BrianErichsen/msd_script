@@ -11,12 +11,13 @@ size_t& index) {
     while (index < tokens.size() && tokens[index] == " ") {
         ++index;
     }
-    std::cout << tokens[0] << " " << tokens[1] << " " << tokens[2];
+    //for debuging and it worked as intended
+    // std::cout << tokens[0] << " " << tokens[1] << " " << tokens[2];
     std::string token = tokens[index];
     // std::string token = tokens[index++];
-    if (token == "+") {
+    if (tokens[1] == "+") {
         return Add::parseExpr(tokens, index);
-    } else if (token == "*") {
+    } else if (tokens[1] == "*") {
         return Mul::parseExpr(tokens, index);
     } else if (isdigit(token[0])) {
         return new Num(std::stoi(token));
@@ -90,8 +91,9 @@ bool Add::equals(const Expr* other) const {
 }
 Expr* Add::parseExpr(const std::vector<std::string>& tokens,
     size_t& index) {
-        Expr* left = parseExpr(tokens, --index);
-        Expr* right = parseExpr(tokens, ++index);
+        Expr* left = new Num(stoi(tokens[0]));
+        // Expr* left = parseExpr(tokens, ++index); - recursive approach
+        Expr* right = new Num(stoi(tokens[2]));
         return new Add(left, right);
     }
 Add::~Add() {
@@ -117,13 +119,10 @@ bool Mul::equals(const Expr* other) const {
 
 Expr* Mul::parseExpr(const std::vector<std::string>& tokens,
 size_t& index) {
-    if (index + 3 < tokens.size()) {
-        Expr* left = parseExpr(tokens, --index);
-        Expr* right = parseExpr(tokens, ++index);
+        Expr* left = new Num(stoi(tokens[0]));
+        Expr* right = new Num(stoi(tokens[2]));
+        std::cout << "Hello from Mult parser" << std::endl;
         return new Mul(left, right);
-    } else {
-        throw new std::runtime_error("Invalid expression");
-    }
 }
 Mul::~Mul() {
     delete left;
