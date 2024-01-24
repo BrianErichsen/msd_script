@@ -11,15 +11,21 @@ size_t& index) {
     while (index < tokens.size() && tokens[index] == " ") {
         ++index;
     }
-    //for debuging and it worked as intended
-    // std::cout << tokens[0] << " " << tokens[1] << " " << tokens[2];
-    std::string token = tokens[index];
+
+    //for debuging and it worked as intended at least for + / not *
+    std::cout << tokens[index] << " " << tokens[index + 1]
+    << " " << tokens[index + 2] << " " << tokens.size();
+
+    std::string token = tokens[index + 1];
     // std::string token = tokens[index++];
-    if (tokens[1] == "+") {
+    if (token == "+") {
+        std::cout << "Hello from Add parser" << std::endl;
         return Add::parseExpr(tokens, index);
-    } else if (tokens[1] == "*") {
+    } else if (token == "*") {
+        std::cout << "Hello from Mult parser" << std::endl;
         return Mul::parseExpr(tokens, index);
     } else if (isdigit(token[0])) {
+        std::cout << "Hello from Num parser" << std::endl;
         return new Num(std::stoi(token));
     } else {
         std::cerr << "Error: Invalid token '" << token << "'.\n";
@@ -27,7 +33,7 @@ size_t& index) {
     }
     return nullptr;
 }
-//--Num class implementation
+//--Beginning of Num class implementation
 //Initialization list - member value with arg val
 Num::Num(int val) : value(val) {}
 
@@ -100,7 +106,7 @@ Add::~Add() {
     delete left;
     delete right;
 }
-//end
+//end of Add class implementation
 
 //Beginning of Multiplication class implementation
 Mul::Mul(Expr* l, Expr* r) : left(l), right(r) {}
@@ -121,7 +127,6 @@ Expr* Mul::parseExpr(const std::vector<std::string>& tokens,
 size_t& index) {
         Expr* left = new Num(stoi(tokens[0]));
         Expr* right = new Num(stoi(tokens[2]));
-        std::cout << "Hello from Mult parser" << std::endl;
         return new Mul(left, right);
 }
 Mul::~Mul() {
