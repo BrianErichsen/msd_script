@@ -9,10 +9,14 @@ class Expr {
     virtual int eval() const=0;
     //virtual function for equals
     virtual bool equals(const Expr* other) const=0;
+    //checks if given expr input has a variable like x or y
+    virtual bool has_variable() const = 0;
+    //
+    // virtual Expr *subst(std::string st, Expr *e)=0;
     //virtual destructor in the base class of a hierarchy
     virtual ~Expr() {}
 
-    static int interpret(Expr* expr);
+    static int interp(Expr* expr);
     static Expr* parseExpr(const std::vector<std::string>& tokens,
     size_t& index);
 };
@@ -28,6 +32,7 @@ class Num : public Expr {
     bool equals(const Expr* other) const override;
     static Expr* parseExpr(const std::vector<std::string>& tokens,
     size_t& index);
+    bool has_variable() const;
 };
 
 class VarExpr : public Expr {
@@ -38,6 +43,8 @@ class VarExpr : public Expr {
     VarExpr(const std::string& name);
     int eval() const override;
     bool equals(const Expr* other) const override;
+    bool has_variable() const;
+    const std::string& getVarName() const;
 };
 
 class Add : public Expr {
@@ -52,6 +59,7 @@ class Add : public Expr {
     bool equals(const Expr* other) const override;
     static Expr* parseExpr(const std::vector<std::string>& tokens,
     size_t& index);
+    bool has_variable() const;
     //destructor making sure that the sub expr (left and right)
     //are properly deleted
     ~Add();
@@ -68,6 +76,7 @@ class Mul : public Expr {
     bool equals(const Expr* other) const override;
     static Expr* parseExpr(const std::vector<std::string>& tokens,
     size_t& index);
+    bool has_variable() const;
     ~Mul();
 };
 

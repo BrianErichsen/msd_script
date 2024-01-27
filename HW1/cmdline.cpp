@@ -28,6 +28,7 @@ void use_arguments(int argc, char* argv[]) {
                 Catch::Session().run(1, argv);
                 std::cout << "All tests passed!" << std::endl;
             }
+            //--interp 'starting here where arguments are parsed
         } else if (strcmp(argv[i], "--interp") == 0) {
             std::vector<std::string> tokens;
             for (int j = i + 1; j < argc; j++) {

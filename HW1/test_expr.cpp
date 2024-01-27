@@ -35,5 +35,13 @@ TEST_CASE("Equals method tests") {
 
         CHECK((new Mul(new Num(2),new Num(3)))->equals
         (new Mul(new Num(2),new Num(3)))==true);
+
+        CHECK_THROWS_WITH( (new VarExpr("x"))->eval(), "no value for variable" );
+    }//end of section
+    SECTION("bool has_variables and other testing") {
+        CHECK( (new Mul(new Num(3), new Num(2)))
+        ->eval()==6 );
+        CHECK((new Add(new VarExpr("x"), new Num(1)))->has_variable() == true );
+        CHECK((new Mul(new Num(2), new Num(1)))->has_variable() == false );
     }
-}
+}//end of ...

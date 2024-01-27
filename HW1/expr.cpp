@@ -1,8 +1,14 @@
+#include <stdexcept>
 #include "expr.h"
 #include<string>
 //first Expr method implementation
-int Expr::interpret(Expr* expr) {
-    return expr->eval();
+int Expr::interp(Expr* expr) {
+    //goes into if eval returns a non 0 value
+    if (expr->eval()) {
+        return expr->eval();
+    } else {
+        std::runtime_error("Expression has to have a value to be interpreted!");
+    }
 }
 Expr* Expr::parseExpr(const std::vector<std::string>& tokens,
 size_t& index) {
@@ -11,10 +17,6 @@ size_t& index) {
     while (index < tokens.size() && tokens[index] == " ") {
         ++index;
     }
-
-    //for debuging and it worked as intended at least for + / not *
-    std::cout << tokens[index] << " " << tokens[index + 1]
-    << " " << tokens[index + 2] << " " << tokens.size();
 
     std::string token = tokens[index + 1];
     // std::string token = tokens[index++];
@@ -64,13 +66,20 @@ size_t& index) {
         throw std::runtime_error("Invalid expression from Num-Parser2");
     }
 }
+bool Num::has_variable() const {
+    //numbers are always not variables
+    return false;
+}
 //---- end of Num class implementation
 // Beguinning of VarExpr class implementation
 VarExpr::VarExpr(const std::string& name) : varName(name) {}
 
 int VarExpr::eval() const {
-    //for now returning 0
-    return 0;
+    //for now / returning that string digits to int
+    if (isdigit(this->varName[0])) {
+        return stoi(varName);
+    } else
+    throw std::runtime_error("no value for variable");
 }
 
 bool VarExpr::equals(const Expr* other) const {
@@ -80,6 +89,22 @@ bool VarExpr::equals(const Expr* other) const {
     }
     return false;
 }
+//helper method to access varName data - reference
+const std::string& VarExpr::getVarName() const {
+    return varName;
+}
+bool VarExpr::has_variable() const {
+    //iterate through it's expression length
+    for (int i = 0; i < varName.size(); i++) {
+        //checks from l to r is any char is any character
+        if (isalpha(varName[i])) {
+            return true;
+        }
+    }
+    //if reached here - no chars encountered in the expression
+    return false;
+}
+
 //-end
 // Beginning of Add class
 Add::Add(Expr* l, Expr* r) : left(l), right(r) {}
@@ -102,6 +127,11 @@ Expr* Add::parseExpr(const std::vector<std::string>& tokens,
         Expr* right = new Num(stoi(tokens[2]));
         return new Add(left, right);
     }
+bool Add::has_variable() const {
+    //if lhs expr same is VarExpr or rhs
+    return dynamic_cast<const VarExpr*>(left) ||
+    dynamic_cast<const VarExpr*>(right);
+}
 Add::~Add() {
     delete left;
     delete right;
@@ -125,9 +155,14 @@ bool Mul::equals(const Expr* other) const {
 
 Expr* Mul::parseExpr(const std::vector<std::string>& tokens,
 size_t& index) {
-        Expr* left = new Num(stoi(tokens[0]));
-        Expr* right = new Num(stoi(tokens[2]));
-        return new Mul(left, right);
+    Expr* left = new Num(stoi(tokens[0]));
+    Expr* right = new Num(stoi(tokens[2]));
+    return new Mul(left, right);
+}
+bool Mul::has_variable() const {
+    //only returns instances of VarExpressions its lhs and rhs
+    return dynamic_cast<const VarExpr*>(left) ||
+    dynamic_cast<const VarExpr*>(right);
 }
 Mul::~Mul() {
     delete left;
