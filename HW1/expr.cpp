@@ -70,6 +70,13 @@ bool Num::has_variable() const {
     //numbers are always not variables
     return false;
 }
+Expr* Num::subst(std::string st, Expr* e) const {
+    //Numbers are always it's own value - nothing more
+    return new Num(value);
+}
+Expr* Num::clone() const {
+    return new Num(value);
+}
 //---- end of Num class implementation
 // Beguinning of VarExpr class implementation
 VarExpr::VarExpr(const std::string& name) : varName(name) {}
@@ -104,7 +111,17 @@ bool VarExpr::has_variable() const {
     //if reached here - no chars encountered in the expression
     return false;
 }
-
+Expr* VarExpr::subst(std::string st, Expr *e) const {
+    //compares st variables with e variables
+    if (this->varName == st) {
+        //creates another object that is a close of e and returns it
+        return e->clone();
+    }
+    
+}
+Expr* VarExpr::clone() const {
+    return new VarExpr(varName);
+}
 //-end
 // Beginning of Add class
 Add::Add(Expr* l, Expr* r) : left(l), right(r) {}
@@ -132,13 +149,21 @@ bool Add::has_variable() const {
     return dynamic_cast<const VarExpr*>(left) ||
     dynamic_cast<const VarExpr*>(right);
 }
+Expr* Add::subst(std::string st, Expr *e) const {
+    //recursive finds nums and variables and assigns to l & r
+    return new Add(left->subst(st, e), right->subst(st, e));
+}
+//recursively creates a new object from either var or num in both l & r
+Expr* Add::clone() const {
+    return new Add(left->clone(), right->clone());
+}
 Add::~Add() {
     delete left;
     delete right;
 }
-//end of Add class implementation
+//-----------------end of Add class implementation
 
-//Beginning of Multiplication class implementation
+//--------------Beginning of Multiplication class implementation
 Mul::Mul(Expr* l, Expr* r) : left(l), right(r) {}
 
 int Mul::eval() const {
@@ -163,6 +188,13 @@ bool Mul::has_variable() const {
     //only returns instances of VarExpressions its lhs and rhs
     return dynamic_cast<const VarExpr*>(left) ||
     dynamic_cast<const VarExpr*>(right);
+}
+Expr* Mul::subst(std::string st, Expr *e) const {
+    //recursive finds nums and variables and assigns to l & r
+    return new Mul(left->subst(st, e), right->subst(st, e));
+}
+Expr* Mul::clone() const {
+    return new Add(left->clone(), right->clone());
 }
 Mul::~Mul() {
     delete left;
