@@ -2,14 +2,6 @@
 #include "expr.h"
 #include<string>
 //first Expr method implementation
-int Expr::interp(Expr* expr) {
-    //goes into if eval returns a non 0 value
-    if (expr->eval()) {
-        return expr->eval();
-    } else {
-        std::runtime_error("Expression has to have a value to be interpreted!");
-    }
-}
 Expr* Expr::parseExpr(const std::vector<std::string>& tokens,
 size_t& index) {
     //skip any white spaces
@@ -17,7 +9,6 @@ size_t& index) {
     while (index < tokens.size() && tokens[index] == " ") {
         ++index;
     }
-
     std::string token = tokens[index + 1];
     // std::string token = tokens[index++];
     if (token == "+") {
@@ -49,8 +40,13 @@ bool Num::equals(const Expr* other) const {
     }
     return false;
 }
-int Num::eval() const {
-        return value;
+int Num::interp() const {
+        if (value) {
+            return value;
+        }
+        else {
+            std::runtime_error("An expression should have a value!");
+        }
 }
 
 Expr* Num::parseExpr(const std::vector<std::string>& tokens,
@@ -81,7 +77,7 @@ Expr* Num::clone() const {
 // Beguinning of VarExpr class implementation
 VarExpr::VarExpr(const std::string& name) : varName(name) {}
 
-int VarExpr::eval() const {
+int VarExpr::interp() const {
     //for now / returning that string digits to int
     if (isdigit(this->varName[0])) {
         return stoi(varName);
@@ -126,8 +122,8 @@ Expr* VarExpr::clone() const {
 // Beginning of Add class
 Add::Add(Expr* l, Expr* r) : left(l), right(r) {}
 
-int Add::eval() const {
-    return left->eval() + right->eval();
+int Add::interp() const {
+    return left->interp() + right->interp();
 }
 bool Add::equals(const Expr* other) const {
     //first check for a valid pointer to see if classes match
@@ -166,8 +162,8 @@ Add::~Add() {
 //--------------Beginning of Multiplication class implementation
 Mul::Mul(Expr* l, Expr* r) : left(l), right(r) {}
 
-int Mul::eval() const {
-    return left->eval() * right->eval();
+int Mul::interp() const {
+    return left->interp() * right->interp();
 }
 
 bool Mul::equals(const Expr* other) const {

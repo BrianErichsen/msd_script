@@ -37,7 +37,7 @@ void use_arguments(int argc, char* argv[]) {
             size_t index = 0;
             Expr* result = Expr::parseExpr(tokens, index);
             if (result != nullptr) {
-                std::cout << result->eval() << std::endl;
+                std::cout << result->interp() << std::endl;
             }
             exit(0);
         } else {

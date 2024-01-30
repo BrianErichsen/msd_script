@@ -6,7 +6,7 @@
 class Expr {
     public:
     //pure virtual function meaning that any class inheriting must implement
-    virtual int eval() const=0;
+    virtual int interp() const=0;
     //virtual function for equals
     virtual bool equals(const Expr* other) const=0;
     //checks if given expr input has a variable like x or y
@@ -17,7 +17,6 @@ class Expr {
     //virtual destructor in the base class of a hierarchy
     virtual ~Expr() {}
 
-    static int interp(Expr* expr);
     static Expr* parseExpr(const std::vector<std::string>& tokens,
     size_t& index);
 };
@@ -29,7 +28,7 @@ class Num : public Expr {
     public:
     //constructor
     Num(int val);
-    int eval() const override;
+    int interp() const override;
     bool equals(const Expr* other) const override;
     static Expr* parseExpr(const std::vector<std::string>& tokens,
     size_t& index);
@@ -44,7 +43,7 @@ class VarExpr : public Expr {
 
     public:
     VarExpr(const std::string& name);
-    int eval() const override;
+    int interp() const override;
     bool equals(const Expr* other) const override;
     bool has_variable() const override;
     const std::string& getVarName() const;
@@ -60,7 +59,7 @@ class Add : public Expr {
     public:
     //constructor
     Add(Expr* l, Expr* r);
-    int eval() const override;
+    int interp() const override;
     bool equals(const Expr* other) const override;
     static Expr* parseExpr(const std::vector<std::string>& tokens,
     size_t& index);
@@ -79,7 +78,7 @@ class Mul : public Expr {
 
     public:
     Mul(Expr* l, Expr* r);
-    int eval() const override;
+    int interp() const override;
     bool equals(const Expr* other) const override;
     static Expr* parseExpr(const std::vector<std::string>& tokens,
     size_t& index);

@@ -24,10 +24,10 @@ TEST_CASE("Equals method tests") {
         CHECK((new Add(num1,new Num(-1)))->equals
         (new Add(new Num(2147483647),new Num(-1)))==true);
         //check for proper value
-        CHECK((new Num(2))->eval() == 2);
+        CHECK((new Num(2))->interp() == 2);
         //check if the result of the 2 != expressions are correct
-        CHECK((new Add(new Num(2), new Num(3)))->eval() ==
-        (new Mul(new Num(1), new Num(5)))->eval());
+        CHECK((new Add(new Num(2), new Num(3)))->interp() ==
+        (new Mul(new Num(1), new Num(5)))->interp());
 
         //Mul class
         CHECK((new Mul(new Num(2),new Num(3)))->equals
@@ -36,11 +36,12 @@ TEST_CASE("Equals method tests") {
         CHECK((new Mul(new Num(2),new Num(3)))->equals
         (new Mul(new Num(2),new Num(3)))==true);
 
-        CHECK_THROWS_WITH( (new VarExpr("x"))->eval(), "no value for variable" );
+        CHECK_THROWS_WITH( (new VarExpr("x"))->interp(), "no value for variable" );
+    
     }//end of section
     SECTION("bool has_variables and other testing") {
         CHECK( (new Mul(new Num(3), new Num(2)))
-        ->eval()==6 );
+        ->interp()==6 );
         CHECK((new Add(new VarExpr("x"), new Num(1)))->has_variable() == true );
         CHECK((new Mul(new Num(2), new Num(1)))->has_variable() == false );
     }
