@@ -41,12 +41,8 @@ bool Num::equals(const Expr* other) const {
     return false;
 }
 int Num::interp() const {
-        if (value) {
-            return value;
-        }
-        else {
-            std::runtime_error("An expression should have a value!");
-        }
+    //just return value
+    return value;
 }
 
 Expr* Num::parseExpr(const std::vector<std::string>& tokens,
@@ -78,10 +74,7 @@ Expr* Num::clone() const {
 VarExpr::VarExpr(const std::string& name) : varName(name) {}
 
 int VarExpr::interp() const {
-    //for now / returning that string digits to int
-    if (isdigit(this->varName[0])) {
-        return stoi(varName);
-    } else
+    //a var has no fixed value
     throw std::runtime_error("no value for variable");
 }
 
@@ -97,23 +90,14 @@ const std::string& VarExpr::getVarName() const {
     return varName;
 }
 bool VarExpr::has_variable() const {
-    //iterate through it's expression length
-    for (int i = 0; i < varName.size(); i++) {
-        //checks from l to r is any char is any character
-        if (isalpha(varName[i])) {
-            return true;
-        }
-    }
-    //if reached here - no chars encountered in the expression
-    return false;
+    return true;
 }
 Expr* VarExpr::subst(std::string st, Expr *e) const {
     //compares st variables with e variables
     if (this->varName == st) {
-        //creates another object that is a close of e and returns it
+        //creates another object that is a clone of e and returns it
         return e->clone();
     }
-    
 }
 Expr* VarExpr::clone() const {
     return new VarExpr(varName);
@@ -141,9 +125,8 @@ Expr* Add::parseExpr(const std::vector<std::string>& tokens,
         return new Add(left, right);
     }
 bool Add::has_variable() const {
-    //if lhs expr same is VarExpr or rhs
-    return dynamic_cast<const VarExpr*>(left) ||
-    dynamic_cast<const VarExpr*>(right);
+    //if lhs expr same is VarExpr or rhs // recursive -- approach
+    return left->has_variable() || right->has_variable();
 }
 Expr* Add::subst(std::string st, Expr *e) const {
     //recursive finds nums and variables and assigns to l & r
@@ -182,15 +165,14 @@ size_t& index) {
 }
 bool Mul::has_variable() const {
     //only returns instances of VarExpressions its lhs and rhs
-    return dynamic_cast<const VarExpr*>(left) ||
-    dynamic_cast<const VarExpr*>(right);
+    return left->has_variable() || right->has_variable();
 }
 Expr* Mul::subst(std::string st, Expr *e) const {
     //recursive finds nums and variables and assigns to l & r
     return new Mul(left->subst(st, e), right->subst(st, e));
 }
 Expr* Mul::clone() const {
-    return new Add(left->clone(), right->clone());
+    return new Mul(left->clone(), right->clone());
 }
 Mul::~Mul() {
     delete left;

@@ -44,6 +44,7 @@ TEST_CASE("Equals method tests") {
         ->interp()==6 );
         CHECK((new Add(new VarExpr("x"), new Num(1)))->has_variable() == true );
         CHECK((new Mul(new Num(2), new Num(1)))->has_variable() == false );
+        CHECK((new Mul(new Num(-99), new Num(1)))->has_variable() == false );
     }
     SECTION("Subst method test case") {
         CHECK( (new Add(new VarExpr("x"), new Num(7)))
@@ -52,5 +53,11 @@ TEST_CASE("Equals method tests") {
         CHECK( (new VarExpr("x"))
         ->subst("x", new Add(new VarExpr("y"),new Num(7)))
         ->equals(new Add(new VarExpr("y"),new Num(7))) );
+        CHECK( (new VarExpr("x"))
+        ->subst("x", new Mul(new VarExpr("y"),new Num(7)))
+        ->equals(new Mul(new VarExpr("y"),new Num(7))) );
+        CHECK( (new VarExpr("y"))
+        ->subst("y", new Mul(new VarExpr("x"),new Num(-12)))
+        ->equals(new Mul(new VarExpr("x"),new Num(-12))) );
     }
 }//end of ...
