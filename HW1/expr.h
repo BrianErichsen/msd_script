@@ -2,6 +2,11 @@
 #define EXPR_H
 
 #include <iostream>
+typedef enum {
+  prec_none,      // = 0
+  prec_add,       // = 1
+  prec_mult       // = 2
+} precedence_t;
 
 class Expr {
     public:
@@ -14,6 +19,11 @@ class Expr {
     //returns expr with variable in expression
     virtual Expr* subst(std::string st, Expr* e) const=0;
     virtual Expr* clone() const = 0;
+    virtual void print(std::ostream& os) const = 0;
+    std::string to_string();
+    void pretty_print_at(std::ostream &os);
+    virtual void pretty_print(std::ostream &os, precedence_t p) = 0;
+    std::string to_pretty_string();
     //virtual destructor in the base class of a hierarchy
     virtual ~Expr() {}
 
@@ -35,6 +45,8 @@ class Num : public Expr {
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     Expr* clone() const override;
+    void print(std::ostream& os) const override;
+    void pretty_print(std::ostream &os, precedence_t p) override;
 };
 
 class VarExpr : public Expr {
@@ -49,6 +61,8 @@ class VarExpr : public Expr {
     const std::string& getVarName() const;
     Expr* subst(std::string st, Expr *e) const override;
     Expr* clone() const override;
+    void print(std::ostream& os) const override;
+    void pretty_print(std::ostream &os, precedence_t p) override;
 };
 
 class Add : public Expr {
@@ -66,6 +80,8 @@ class Add : public Expr {
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     Expr* clone() const override;
+    void print(std::ostream& os) const override;
+    void pretty_print(std::ostream &os, precedence_t p) override;
     //destructor making sure that the sub expr (left and right)
     //are properly deleted
     ~Add();
@@ -85,6 +101,8 @@ class Mul : public Expr {
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     Expr* clone() const override;
+    void print(std::ostream& os) const override;
+    void pretty_print(std::ostream &os, precedence_t p) override;
     ~Mul();
 };
 

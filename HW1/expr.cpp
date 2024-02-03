@@ -1,6 +1,8 @@
 #include <stdexcept>
 #include "expr.h"
 #include<string>
+#include <sstream>
+
 //first Expr method implementation
 Expr* Expr::parseExpr(const std::vector<std::string>& tokens,
 size_t& index) {
@@ -25,6 +27,19 @@ size_t& index) {
         exit(1);
     }
     return nullptr;
+}
+std::string Expr::to_string() {
+    std::stringstream st("");
+    this->print(st);
+    return st.str();
+}
+void Expr::pretty_print_at(std::ostream &os) {
+    this->pretty_print(os, prec_none);
+}
+std::string Expr::to_pretty_string() {
+    std::stringstream st("");
+    this->pretty_print_at(st);
+    return st.str();
 }
 //--Beginning of Num class implementation
 //Initialization list - member value with arg val
@@ -69,7 +84,15 @@ Expr* Num::subst(std::string st, Expr* e) const {
 Expr* Num::clone() const {
     return new Num(value);
 }
+void Num::print(std::ostream& os) const {
+    os << value;
+}
+void Num::pretty_print(std::ostream& os, precedence_t p) {
+    os << this->value;
+}
 //---- end of Num class implementation
+
+
 // Beguinning of VarExpr class implementation
 VarExpr::VarExpr(const std::string& name) : varName(name) {}
 
@@ -102,7 +125,14 @@ Expr* VarExpr::subst(std::string st, Expr *e) const {
 Expr* VarExpr::clone() const {
     return new VarExpr(varName);
 }
-//-end
+
+void VarExpr::print(std::ostream& os) const {
+    os << varName;
+}
+void VarExpr::pretty_print(std::ostream& os, precedence_t p) {
+    os << this->varName;
+}
+//-end of VarExpr class implementation
 // Beginning of Add class
 Add::Add(Expr* l, Expr* r) : left(l), right(r) {}
 
@@ -135,6 +165,24 @@ Expr* Add::subst(std::string st, Expr *e) const {
 //recursively creates a new object from either var or num in both l & r
 Expr* Add::clone() const {
     return new Add(left->clone(), right->clone());
+}
+void Add::print(std::ostream& os) const {
+    os << "(";
+    left->print(os);
+    os << " + ";
+    right->print(os);
+    os << ")";
+}
+void Add::pretty_print(std::ostream &os, precedence_t p) {
+    if (p > prec_add) {
+        os << "(";
+    }
+    this->left->pretty_print(os, prec_add);
+    os << " + ";
+    this->right->pretty_print(os, prec_add);
+    if (p > prec_add) {
+        os << ")";
+    }
 }
 Add::~Add() {
     delete left;
@@ -173,6 +221,27 @@ Expr* Mul::subst(std::string st, Expr *e) const {
 }
 Expr* Mul::clone() const {
     return new Mul(left->clone(), right->clone());
+}
+void Mul::print(std::ostream& os) const {
+    os << "(";
+    left->print(os);
+    os << " * ";
+    right->print(os);
+    os << ")";
+}
+void Mul::pretty_print(std::ostream &os, precedence_t p) {
+    //if precendence is higher than prec of mult then we need '('
+    if (p > prec_mult) {
+        os << "(";
+    }
+    //left operand printed with higher precedence to ensure nested mult is
+    //enclosed
+    this->left->pretty_print(os, static_cast<precedence_t>(prec_mult + 1));
+    os << " * ";
+    this->right->pretty_print(os, prec_mult);
+    if (p > prec_mult) {
+        os << ")";
+    }
 }
 Mul::~Mul() {
     delete left;

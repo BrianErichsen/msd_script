@@ -60,4 +60,15 @@ TEST_CASE("Equals method tests") {
         ->subst("y", new Mul(new VarExpr("x"),new Num(-12)))
         ->equals(new Mul(new VarExpr("x"),new Num(-12))) );
     }
+    SECTION("Printing methods test cases") {
+        CHECK( (new Num(10))->to_string() == "10" );
+        CHECK ( (new Mul(new Num(1), new Add(new Num(2),
+        new Num(3))))->to_pretty_string() ==  "1 * (2 + 3)" );
+        CHECK ( (new Mul(new Mul(new Num(8), new Num(1)),
+        new VarExpr("y")))->to_pretty_string() ==  "(8 * 1) * y" );
+        CHECK ( (new Mul(new Add(new Num(3), new Num(5)),
+        new Mul(new Num(6), new Num(1))))->to_pretty_string() ==  "(3 + 5) * 6 * 1" );
+        CHECK ( (new Mul(new Mul(new Num(7), new Num(7)),
+        new Add(new Num(9), new Num(2))) )->to_pretty_string() ==  "(7 * 7) * (9 + 2)" );
+    }
 }//end of ...
