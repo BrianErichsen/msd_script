@@ -70,5 +70,15 @@ TEST_CASE("Equals method tests") {
         new Mul(new Num(6), new Num(1))))->to_pretty_string() ==  "(3 + 5) * 6 * 1" );
         CHECK ( (new Mul(new Mul(new Num(7), new Num(7)),
         new Add(new Num(9), new Num(2))) )->to_pretty_string() ==  "(7 * 7) * (9 + 2)" );
+        Add *addPrintExp = new Add(new Num(-1), new Add(new Num(-2), new Num(-3)));
+        std::string exp = "(-1 + (-2 + -3))";
+        CHECK( addPrintExp->to_string() == exp );
+        // Check simple Num printing
+        CHECK((new Num(42))->to_string() == "42");
+        // Check VarExpr printing
+        CHECK((new VarExpr("x"))->to_string() == "x");
+        CHECK((new Add(new Num(1), new Num(2)))->to_string() == "(1 + 2)");
+        CHECK((new Add(new Num(1), new VarExpr("x")))->to_pretty_string() == "1 + x");
+        CHECK((new Mul(new Num(3), new VarExpr("y")))->to_pretty_string() == "3 * y");
     }
 }//end of ...

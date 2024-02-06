@@ -18,7 +18,6 @@ class Expr {
     virtual bool has_variable() const = 0;
     //returns expr with variable in expression
     virtual Expr* subst(std::string st, Expr* e) const=0;
-    virtual Expr* clone() const = 0;
     virtual void print(std::ostream& os) const = 0;
     std::string to_string();
     void pretty_print_at(std::ostream &os);
@@ -44,7 +43,6 @@ class Num : public Expr {
     size_t& index);
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
-    Expr* clone() const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p) override;
 };
@@ -60,7 +58,6 @@ class VarExpr : public Expr {
     bool has_variable() const override;
     const std::string& getVarName() const;
     Expr* subst(std::string st, Expr *e) const override;
-    Expr* clone() const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p) override;
 };
@@ -79,7 +76,6 @@ class Add : public Expr {
     size_t& index);
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
-    Expr* clone() const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p) override;
     //destructor making sure that the sub expr (left and right)
@@ -100,7 +96,6 @@ class Mul : public Expr {
     size_t& index);
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
-    Expr* clone() const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p) override;
     ~Mul();

@@ -36,6 +36,7 @@ std::string Expr::to_string() {
 void Expr::pretty_print_at(std::ostream &os) {
     this->pretty_print(os, prec_none);
 }
+//implements pretty print
 std::string Expr::to_pretty_string() {
     std::stringstream st("");
     this->pretty_print_at(st);
@@ -81,9 +82,6 @@ Expr* Num::subst(std::string st, Expr* e) const {
     //Numbers are always it's own value - nothing more
     return new Num(value);
 }
-Expr* Num::clone() const {
-    return new Num(value);
-}
 void Num::print(std::ostream& os) const {
     os << value;
 }
@@ -119,10 +117,8 @@ Expr* VarExpr::subst(std::string st, Expr *e) const {
     //compares st variables with e variables
     if (this->varName == st) {
         //creates another object that is a clone of e and returns it
-        return e->clone();
+        return e;
     }
-}
-Expr* VarExpr::clone() const {
     return new VarExpr(varName);
 }
 
@@ -161,10 +157,6 @@ bool Add::has_variable() const {
 Expr* Add::subst(std::string st, Expr *e) const {
     //recursive finds nums and variables and assigns to l & r
     return new Add(left->subst(st, e), right->subst(st, e));
-}
-//recursively creates a new object from either var or num in both l & r
-Expr* Add::clone() const {
-    return new Add(left->clone(), right->clone());
 }
 void Add::print(std::ostream& os) const {
     os << "(";
@@ -218,9 +210,6 @@ bool Mul::has_variable() const {
 Expr* Mul::subst(std::string st, Expr *e) const {
     //recursive finds nums and variables and assigns to l & r
     return new Mul(left->subst(st, e), right->subst(st, e));
-}
-Expr* Mul::clone() const {
-    return new Mul(left->clone(), right->clone());
 }
 void Mul::print(std::ostream& os) const {
     os << "(";
