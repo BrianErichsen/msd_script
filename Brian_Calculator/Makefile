@@ -28,3 +28,6 @@ clean:
 # Run the exe
 run: $(TARGET)
 	./$(TARGET)
+
+documentation: Doxyfile
+	doxygen $<

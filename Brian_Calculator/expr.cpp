@@ -161,7 +161,7 @@ Expr* Add::subst(std::string st, Expr *e) const {
 void Add::print(std::ostream& os) const {
     os << "(";
     left->print(os);
-    os << " + ";
+    os << "+";
     right->print(os);
     os << ")";
 }
@@ -214,7 +214,7 @@ Expr* Mul::subst(std::string st, Expr *e) const {
 void Mul::print(std::ostream& os) const {
     os << "(";
     left->print(os);
-    os << " * ";
+    os << "*";
     right->print(os);
     os << ")";
 }
