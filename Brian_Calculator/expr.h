@@ -206,5 +206,24 @@ class Mul : public Expr {
     void pretty_print(std::ostream &os, precedence_t p) override;
     ~Mul();
 };
+//
+class Let : public Expr {
+    private:
+    std::string left; //variable name
+    Expr* right;    //binding Expression
+    Expr* body;     //body Expression
+    
+    public:
+    //default constructor
+    Let(std::string left, Expr* right, Expr* body);
+    int interp() const override;
+    bool equals(const Expr* other) const override;
+    static Expr* parseExpr(const std::vector<std::string>& tokens,
+    size_t& index);
+    bool has_variable() const override;
+    Expr* subst(std::string st, Expr *e) const override;
+    void print(std::ostream& os) const override;
+    void pretty_print(std::ostream &os, precedence_t p) override;
+};
 
 #endif // EXPR_H

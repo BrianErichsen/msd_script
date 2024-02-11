@@ -81,4 +81,22 @@ TEST_CASE("Equals method tests") {
         CHECK((new Add(new Num(1), new VarExpr("x")))->to_pretty_string() == "1 + x");
         CHECK((new Mul(new Num(3), new VarExpr("y")))->to_pretty_string() == "3 * y");
     }
+    SECTION("Let expression test cases for its methods") {
+        Let letExpr("x", new Num(5), new VarExpr("x"));
+        CHECK(letExpr.to_string() == "(_let x=5 _in x)");
+        //test case given from assignment
+        Expr* test69 = new Let("x", new Num(5), new Add(new Let("y", new Num(3),
+        new Add(new VarExpr("y"), new Num(2))), new VarExpr("x")));
+        CHECK(test69->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
+        CHECK(test69->to_pretty_string() == "_let x = 5\n_in  (_let y = 3\n      _in  y + 2) + x");
+        CHECK(test69->interp() == 10);
+        Expr* test70 = new Mul(
+            new Mul(
+                new Num(2),
+                new Let("x", new Num(5), new Add(new VarExpr("x"), new Num(1)))
+            ),
+            new Num(3)
+        );
+        CHECK(test70->to_pretty_string() == "(2 * _let x = 5\n     _in  x + 1) * 3");
+    }
 }//end of ...

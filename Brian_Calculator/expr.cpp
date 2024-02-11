@@ -236,3 +236,61 @@ Mul::~Mul() {
     delete left;
     delete right;
 }
+/// end of Mul class implementation ///
+
+//Beginning of _let class implementation ////
+Let::Let(std::string l, Expr* r, Expr* body) : left(l), right(r), body(body) {}
+
+int Let::interp() const {
+    int rhs = right->interp();
+    Expr* subsBody = body->subst(left, new Num(rhs));
+    return subsBody->interp();
+}
+
+bool Let::equals(const Expr* other) const {
+    //first check for a valid pointer to see if classes match
+    if (const Let* other_let = dynamic_cast<const Let*>(other)) {
+        //recursively compares other pointers and string left
+        return other_let->left == left && right->equals(other_let->right)
+        && body->equals(other_let->body);
+    }
+    return false;
+}
+
+bool Let::has_variable() const {
+    //only returns instances of VarExpressions its rhs
+    return right->has_variable();
+}
+
+Expr* Let::subst(std::string st, Expr *e) const {
+    // creates new expressions for right and body recursively
+    Expr* rhs = right->subst(st, e);
+    Expr* subsBody = body->subst(st, e);
+    //creates new expr with new input
+    return new Let(left, rhs, subsBody);
+}
+
+void Let::print(std::ostream& os) const {
+    os << "(_let " << this->left << "=";
+    right->print(os);
+    os << " _in ";
+    body->print(os);
+    os << ")";
+}
+void Let::pretty_print(std::ostream &os, precedence_t p) {
+    //check if parentheses are needed
+    if (p > prec_none) {
+        os << "(";
+    }
+    os << "(_let " << this->left << " = ";
+    right->pretty_print(os, prec_none);
+
+    //prints newline and indentation
+    os << "\n_in ";
+    body->pretty_print(os, prec_none);
+    
+    //chekcs if parentheses are needed
+    if (p > prec_none) {
+        os << ")";
+    }
+}
