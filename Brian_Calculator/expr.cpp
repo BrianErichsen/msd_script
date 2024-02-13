@@ -169,7 +169,7 @@ void Add::pretty_print(std::ostream &os, precedence_t p) {
     if (p > prec_add) {
         os << "(";
     }
-    this->left->pretty_print(os, prec_add);
+    this->left->pretty_print(os, static_cast<precedence_t>(prec_add + 1));
     os << " + ";
     this->right->pretty_print(os, prec_add);
     if (p > prec_add) {
