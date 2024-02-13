@@ -282,11 +282,11 @@ void Let::pretty_print(std::ostream &os, precedence_t p) {
     if (p > prec_none) {
         os << "(";
     }
-    os << "(_let " << this->left << " = ";
+    os << "_let " << this->left << " = ";
     right->pretty_print(os, prec_none);
 
     //prints newline and indentation
-    os << "\n_in ";
+    os << "\n     _in ";
     body->pretty_print(os, prec_none);
     
     //chekcs if parentheses are needed
