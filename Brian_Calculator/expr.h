@@ -6,9 +6,9 @@
  * \brief Enumeration to represent different precedences for pretty printing.
  */
 typedef enum {
-  prec_none,      // = 0
-  prec_add,       // = 1
-  prec_mult       // = 2
+  prec_none = 0,
+  prec_add = 1,
+  prec_mult = 2,
 } precedence_t;
 /**
  * \brief Base class for representing expressions.
@@ -54,7 +54,7 @@ class Expr {
      * \param os Output stream to pretty print the expression.
      * \param p Precedence level for pretty printing.
      */
-    virtual void pretty_print(std::ostream &os, precedence_t p) = 0;
+    virtual void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) = 0;
     /**
      * \brief Converts the expression to a pretty string.
      * \return Pretty string representation of the expression.
@@ -112,7 +112,7 @@ class Num : public Expr {
      * \param os Output stream to pretty print the expression.
      * \param p Precedence level for pretty printing.
      */
-    void pretty_print(std::ostream &os, precedence_t p) override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) override;
 };
 /**
  * \brief Represents a variable expression.
@@ -161,7 +161,7 @@ class VarExpr : public Expr {
      * \param os Output stream to pretty print the expression.
      * \param p Precedence level for pretty printing.
      */
-    void pretty_print(std::ostream &os, precedence_t p) override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) override;
 };
 /**
  * \brief Represents an addition expression.
@@ -181,7 +181,7 @@ class Add : public Expr {
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     void print(std::ostream& os) const override;
-    void pretty_print(std::ostream &os, precedence_t p) override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) override;
     //destructor making sure that the sub expr (left and right)
     //are properly deleted
     ~Add();
@@ -203,7 +203,7 @@ class Mul : public Expr {
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     void print(std::ostream& os) const override;
-    void pretty_print(std::ostream &os, precedence_t p) override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) override;
     ~Mul();
 };
 //
@@ -223,7 +223,8 @@ class Let : public Expr {
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     void print(std::ostream& os) const override;
-    void pretty_print(std::ostream &os, precedence_t p) override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) override;
+    ~Let();
 };
 
 #endif // EXPR_H

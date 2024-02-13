@@ -34,7 +34,7 @@ std::string Expr::to_string() {
     return st.str();
 }
 void Expr::pretty_print_at(std::ostream &os) {
-    this->pretty_print(os, prec_none);
+    this->pretty_print(os, prec_none, true, 0);
 }
 //implements pretty print
 std::string Expr::to_pretty_string() {
@@ -85,7 +85,7 @@ Expr* Num::subst(std::string st, Expr* e) const {
 void Num::print(std::ostream& os) const {
     os << value;
 }
-void Num::pretty_print(std::ostream& os, precedence_t p) {
+void Num::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthesesis, int pos) {
     os << this->value;
 }
 //---- end of Num class implementation
@@ -125,7 +125,7 @@ Expr* VarExpr::subst(std::string st, Expr *e) const {
 void VarExpr::print(std::ostream& os) const {
     os << varName;
 }
-void VarExpr::pretty_print(std::ostream& os, precedence_t p) {
+void VarExpr::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthesesis, int pos) {
     os << this->varName;
 }
 //-end of VarExpr class implementation
@@ -165,13 +165,14 @@ void Add::print(std::ostream& os) const {
     right->print(os);
     os << ")";
 }
-void Add::pretty_print(std::ostream &os, precedence_t p) {
+void Add::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) {
     if (p > prec_add) {
         os << "(";
     }
-    this->left->pretty_print(os, static_cast<precedence_t>(prec_add + 1));
+    this->left->pretty_print(os, static_cast<precedence_t>(prec_add + 1), true, pos);
     os << " + ";
-    this->right->pretty_print(os, prec_add);
+    //is it prec_add or prec none here ??
+    this->right->pretty_print(os, prec_add, true, pos);
     if (p > prec_add) {
         os << ")";
     }
@@ -218,16 +219,17 @@ void Mul::print(std::ostream& os) const {
     right->print(os);
     os << ")";
 }
-void Mul::pretty_print(std::ostream &os, precedence_t p) {
+void Mul::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) {
     //if precendence is higher than prec of mult then we need '('
     if (p > prec_mult) {
+        let_needs_parenthesesis = false;
         os << "(";
     }
     //left operand printed with higher precedence to ensure nested mult is
     //enclosed
-    this->left->pretty_print(os, static_cast<precedence_t>(prec_mult + 1));
+    this->left->pretty_print(os, static_cast<precedence_t>(prec_mult + 1), let_needs_parenthesesis, pos);
     os << " * ";
-    this->right->pretty_print(os, prec_mult);
+    this->right->pretty_print(os, prec_mult, let_needs_parenthesesis, pos);
     if (p > prec_mult) {
         os << ")";
     }
@@ -277,20 +279,40 @@ void Let::print(std::ostream& os) const {
     body->print(os);
     os << ")";
 }
-void Let::pretty_print(std::ostream &os, precedence_t p) {
+void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) {
     //check if parentheses are needed
-    if (p > prec_none) {
+    if (p > prec_none && let_needs_parenthesesis) {
         os << "(";
     }
+    //returns current pos of char in the os
+    int letPos = os.tellp();
+    //calculates the number of spaces needed for indentation
+    int n = letPos - pos;
+    //print _let following by variable and equal sign
     os << "_let " << this->left << " = ";
-    right->pretty_print(os, prec_none);
+    //pretty print rhs of the expression
+    right->pretty_print(os, p, let_needs_parenthesesis, letPos);
+    //prints newline
+    os << "\n";
+    //get the position after the new line char
+    int inPos = os.tellp();
+    //adds spaces for identation
+    while (n > 0) {
+        os << " ";
+        n--;
+    }
+    //prints _in by spaces for identation
+    os << "_in  ";
+    //pretty print the body
+    body->pretty_print(os, prec_none, let_needs_parenthesesis, inPos);
 
-    //prints newline and indentation
-    os << "\n     _in ";
-    body->pretty_print(os, prec_none);
-    
-    //chekcs if parentheses are needed
-    if (p > prec_none) {
+    //checks if parentheses are needed
+    if (p > prec_none && let_needs_parenthesesis) {
         os << ")";
     }
+}
+//destructor method for let class
+Let::~Let() {
+    delete right;
+    delete body;
 }
