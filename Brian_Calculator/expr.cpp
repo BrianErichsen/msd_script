@@ -221,15 +221,17 @@ void Mul::print(std::ostream& os) const {
 }
 void Mul::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) {
     //if precendence is higher than prec of mult then we need '('
+    bool unparethesis = p < prec_mult;
+
     if (p > prec_mult) {
         let_needs_parenthesesis = false;
         os << "(";
     }
     //left operand printed with higher precedence to ensure nested mult is
     //enclosed
-    this->left->pretty_print(os, static_cast<precedence_t>(prec_mult + 1), let_needs_parenthesesis, pos);
+    this->left->pretty_print(os, static_cast<precedence_t>(prec_mult + 1), true, pos);
     os << " * ";
-    this->right->pretty_print(os, prec_mult, let_needs_parenthesesis, pos);
+    this->right->pretty_print(os, prec_mult, unparethesis && let_needs_parenthesesis, pos);
     if (p > prec_mult) {
         os << ")";
     }
@@ -244,6 +246,7 @@ Mul::~Mul() {
 Let::Let(std::string l, Expr* r, Expr* body) : left(l), right(r), body(body) {}
 
 int Let::interp() const {
+    //maybe not necessary
     int rhs = right->interp();
     Expr* subsBody = body->subst(left, new Num(rhs));
     return subsBody->interp();
@@ -261,12 +264,14 @@ bool Let::equals(const Expr* other) const {
 
 bool Let::has_variable() const {
     //only returns instances of VarExpressions its rhs
-    return right->has_variable();
+    //
+    return right->has_variable() || body->has_variable();
 }
 
 Expr* Let::subst(std::string st, Expr *e) const {
     // creates new expressions for right and body recursively
     Expr* rhs = right->subst(st, e);
+    //if is equal not necessary
     Expr* subsBody = body->subst(st, e);
     //creates new expr with new input
     return new Let(left, rhs, subsBody);
