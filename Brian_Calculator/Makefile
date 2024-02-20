@@ -6,7 +6,7 @@ CXXFLAGS = -std=c++11 -Wall
 TARGET = msdscript
 
 # Source files and object files
-SRCS = msdscript.cpp cmdline.cpp expr.cpp test_expr.cpp
+SRCS = msdscript.cpp cmdline.cpp expr.cpp parse.cpp test.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 # Default target

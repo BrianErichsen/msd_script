@@ -1,6 +1,11 @@
 // #define CATCH_CONFIG_RUNNER
 #include "catch.h"
 #include "expr.h"
+#include "parse.h"
+#include "test.h"
+#include <iostream>
+#include <sstream>
+#include <limits>
 
 TEST_CASE("Equals method tests") {
     SECTION("Expr equals") {
@@ -104,5 +109,61 @@ TEST_CASE("Equals method tests") {
         CHECK(test70->to_pretty_string() == "(2 * _let x = 5\n     _in  x + 1) * 3");
         CHECK(test70->interp() == 36);
         CHECK(test69->interp() == 10);
-    }
-}//end of ...
+    }//end of test case bracket
+
+
+}//end of ...test case
+
+// Expr* parse_str(const std::string& str) {
+// std::istringstream iss(str);
+//     return parse(iss);
+// }
+
+Expr* parse_str(const std::string &str) {
+    std::istringstream iss(str);
+    return parse(iss);
+}
+
+TEST_CASE("parse") {
+    // CHECK_THROWS_WITH( parse_str("()"), "invalid input" );
+
+    CHECK( parse_str("(1)")->equals(new Num(1)) );
+    CHECK( parse_str("(((1)))")->equals(new Num(1)) );
+
+    // CHECK_THROWS_WITH( parse_str("(1"), "missing close parenthesis" );
+
+    CHECK( parse_str("1")->equals(new Num(1)) );
+    CHECK( parse_str("10")->equals(new Num(10)) );
+    CHECK( parse_str("-3")->equals(new Num(-3)) );
+    CHECK( parse_str("  \n 5  ")->equals(new Num(5)) );
+    CHECK_THROWS_WITH( parse_str("-"), "Invalid input" );
+    CHECK_THROWS_WITH( parse_str(" -   5  "), "Invalid input" );
+
+    CHECK( parse_str("x")->equals(new VarExpr("x")) );
+    CHECK( parse_str("xyz")->equals(new VarExpr("xyz")) );
+    CHECK( parse_str("xYz")->equals(new VarExpr("xYz")) );
+    CHECK_THROWS_WITH( parse_str("x_z"), "Invalid input" );
+
+    CHECK( parse_str("x + y")->equals(new Add(new VarExpr("x"), new VarExpr("y"))) );
+
+    CHECK( parse_str("x * y")->equals(new Mul(new VarExpr("x"), new VarExpr("y"))) );
+
+    CHECK( parse_str("z * x + y")
+        ->equals(new Add(new Mul(new VarExpr("z"), new VarExpr("x")),
+        new VarExpr("y"))) );
+
+    CHECK( parse_str("z * (x + y)")
+        ->equals(new Mul(new VarExpr("z"),
+        new Add(new VarExpr("x"), new VarExpr("y"))) ));
+}//end of test case bracket
+
+// TEST_CASE("testing_let_parse"){
+//     CHECK(parse_str(("_let x=5 _in (x+7)"))->equals(new _let("x", new Num(5), new Add(new VarExpr("x"), new Num(7)))));
+
+//     CHECK(parse_str(("_let x=5 _in (x+7)"))->equals(new _let("x", new Num(5), new Add(new VarExpr("x"), new Num(7)))));
+//     CHECK(parse_str(("_let x=10 _in (y+10)"))->equals(new _let("x", new Num(10), new Add(new VarExpr("y"), new Num(10)))));
+//     CHECK(parse_str(("(_let x=5 _in ((_let y=3 _in (y+2))+x))"))
+//                   ->equals(new _let("x", new Num(5),
+//                                    new Add(new _let("y", new Num(3), new Add(new VarExpr("y"), new Num(2))), new VarExpr("x")))));
+//     CHECK(parse_str(("(_let x=5 _in (x+7))"))->equals((new _let("x", new Num(5), new Add(new VarExpr("x"), new Num(7))))));
+// }

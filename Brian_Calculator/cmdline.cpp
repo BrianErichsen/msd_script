@@ -1,45 +1,35 @@
-#define CATCH_CONFIG_RUNNER
 #include <iostream>
 #include <cstdlib>
 #include "expr.h"
-#include "catch.h"
 #include "cmdline.h"
 
 //created by Brian Erichsen Fagundes - CS6015 Software Engineering
 //Spring semester
 
-void use_arguments(int argc, char* argv[]) {
+run_mode_t use_arguments(int argc, char* argv[]) {
     bool testFlag = false;
 
     for (int i = 1; i < argc; i++) {
         //strcmp compares two strings and return an int; 0 for equal
         if (strcmp(argv[i], "--help") == 0) {
-            //Prits help text and exits
-            std::cout << "Usage: " << argv[0] << " [--help] [--test]\n";
-            exit(0);
+            return do_help;
         } else if (strcmp(argv[i], "--test") == 0) {
-            //tests if flag has already been seen
+            //tests if flag has already been seen exits the program
             if (testFlag) {
                 std::cerr << "Error: --test argument can only be used once.\n";
                 exit(1);
             } else {
                 //sets the flag to true and continues
                 testFlag = true;
-                Catch::Session().run(1, argv);
-                std::cout << "All tests passed!" << std::endl;
+                return do_tests;
             }
             //--interp 'starting here where arguments are parsed
         } else if (strcmp(argv[i], "--interp") == 0) {
-            std::vector<std::string> tokens;
-            for (int j = i + 1; j < argc; j++) {
-                tokens.push_back(argv[j]);
-            }
-            size_t index = 0;
-            Expr* result = Expr::parseExpr(tokens, index);
-            if (result != nullptr) {
-                std::cout << result->interp() << std::endl;
-            }
-            exit(0);
+            return do_interp;
+        } else if (strcmp(argv[i], "--print") == 0) {
+            return do_print;
+        } else if(strcmp(argv[i], "--pretty_print") == 0) {
+            return do_pretty_print;
         } else {
             //if reached here; then given argument is invalid
             std::cerr << "Error: Unknown argument '" << argv[i] <<
