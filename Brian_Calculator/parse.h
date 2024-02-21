@@ -12,5 +12,7 @@ Expr* parse(std::istream &in);
 Expr* parse_var(std::istream &in);
 Expr* parse_let(std::istream &in);
 static void consumeWord(std::istream &in, std::string word);
+bool isValid(std::istream& input);
+bool isMatchingPairs(char open, char close);
 
 #endif

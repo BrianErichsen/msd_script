@@ -3,31 +3,7 @@
 #include<string>
 #include <sstream>
 
-//first Expr method implementation
-Expr* Expr::parseExpr(const std::vector<std::string>& tokens,
-size_t& index) {
-    //skip any white spaces
-    //the purpose is to make tokens 1 + 2; from       1     +      2
-    while (index < tokens.size() && tokens[index] == " ") {
-        ++index;
-    }
-    std::string token = tokens[index + 1];
-    // std::string token = tokens[index++];
-    if (token == "+") {
-        std::cout << "Hello from Add parser" << std::endl;
-        return Add::parseExpr(tokens, index);
-    } else if (token == "*") {
-        std::cout << "Hello from Mult parser" << std::endl;
-        return Mul::parseExpr(tokens, index);
-    } else if (isdigit(token[0])) {
-        std::cout << "Hello from Num parser" << std::endl;
-        return new Num(std::stoi(token));
-    } else {
-        std::cerr << "Error: Invalid token '" << token << "'.\n";
-        exit(1);
-    }
-    return nullptr;
-}
+
 std::string Expr::to_string() {
     std::stringstream st("");
     this->print(st);
@@ -61,19 +37,6 @@ int Num::interp() const {
     return value;
 }
 
-Expr* Num::parseExpr(const std::vector<std::string>& tokens,
-size_t& index) {
-    if (index < tokens.size()) {
-        std::string token = tokens[index++];
-        if (isdigit(token[0])) {
-            return new Num(std::stoi(token));
-    } else {
-        throw new std::runtime_error("Invalid expression from Num-Parser1");
-    }
-    } else {
-        throw std::runtime_error("Invalid expression from Num-Parser2");
-    }
-}
 bool Num::has_variable() const {
     //numbers are always not variables
     return false;
@@ -143,21 +106,17 @@ bool Add::equals(const Expr* other) const {
     }
     return false;
 }
-Expr* Add::parseExpr(const std::vector<std::string>& tokens,
-    size_t& index) {
-        Expr* left = new Num(stoi(tokens[0]));
-        // Expr* left = parseExpr(tokens, ++index); - recursive approach
-        Expr* right = new Num(stoi(tokens[2]));
-        return new Add(left, right);
-    }
+
 bool Add::has_variable() const {
     //if lhs expr same is VarExpr or rhs // recursive -- approach
     return left->has_variable() || right->has_variable();
 }
+
 Expr* Add::subst(std::string st, Expr *e) const {
     //recursive finds nums and variables and assigns to l & r
     return new Add(left->subst(st, e), right->subst(st, e));
 }
+
 void Add::print(std::ostream& os) const {
     os << "(";
     left->print(os);
@@ -165,6 +124,7 @@ void Add::print(std::ostream& os) const {
     right->print(os);
     os << ")";
 }
+
 void Add::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) {
     if (p > prec_add) {
         os << "(";
@@ -198,20 +158,16 @@ bool Mul::equals(const Expr* other) const {
     return false;
 }
 
-Expr* Mul::parseExpr(const std::vector<std::string>& tokens,
-size_t& index) {
-    Expr* left = new Num(stoi(tokens[0]));
-    Expr* right = new Num(stoi(tokens[2]));
-    return new Mul(left, right);
-}
 bool Mul::has_variable() const {
     //only returns instances of VarExpressions its lhs and rhs
     return left->has_variable() || right->has_variable();
 }
+
 Expr* Mul::subst(std::string st, Expr *e) const {
     //recursive finds nums and variables and assigns to l & r
     return new Mul(left->subst(st, e), right->subst(st, e));
 }
+
 void Mul::print(std::ostream& os) const {
     os << "(";
     left->print(os);
@@ -219,6 +175,7 @@ void Mul::print(std::ostream& os) const {
     right->print(os);
     os << ")";
 }
+
 void Mul::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) {
     //if precendence is higher than prec of mult then we need '('
     bool unparethesis = p < prec_mult;

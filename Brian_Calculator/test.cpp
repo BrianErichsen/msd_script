@@ -125,12 +125,12 @@ Expr* parse_str(const std::string &str) {
 }
 
 TEST_CASE("parse") {
-    // CHECK_THROWS_WITH( parse_str("()"), "invalid input" );
+    CHECK_THROWS_WITH( parse_str("()"), "Invalid input" );
 
     CHECK( parse_str("(1)")->equals(new Num(1)) );
     CHECK( parse_str("(((1)))")->equals(new Num(1)) );
 
-    // CHECK_THROWS_WITH( parse_str("(1"), "missing close parenthesis" );
+    CHECK_THROWS_WITH( parse_str("(1"), "Missing closing pararenthesis" );
 
     CHECK( parse_str("1")->equals(new Num(1)) );
     CHECK( parse_str("10")->equals(new Num(10)) );
@@ -156,14 +156,22 @@ TEST_CASE("parse") {
         ->equals(new Mul(new VarExpr("z"),
         new Add(new VarExpr("x"), new VarExpr("y"))) ));
 }//end of test case bracket
+TEST_CASE("Parsing Let Expressions") {
+    SECTION("Simple Let Expression") {
+        std::istringstream input("_let x = 5 _in x");
+        Expr* result = parse_let(input);
+        CHECK(result->to_string() == "(_let x=5 _in x)");
+    }
 
-// TEST_CASE("testing_let_parse"){
-//     CHECK(parse_str(("_let x=5 _in (x+7)"))->equals(new _let("x", new Num(5), new Add(new VarExpr("x"), new Num(7)))));
+    // SECTION("Nested Let Expression") {
+    //     std::istringstream input("_let x = 5 _in (_let y = 3 _in (x + y))");
+    //     Expr* result = parse_let(input);
+    //     CHECK(result->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
+    // }
 
-//     CHECK(parse_str(("_let x=5 _in (x+7)"))->equals(new _let("x", new Num(5), new Add(new VarExpr("x"), new Num(7)))));
-//     CHECK(parse_str(("_let x=10 _in (y+10)"))->equals(new _let("x", new Num(10), new Add(new VarExpr("y"), new Num(10)))));
-//     CHECK(parse_str(("(_let x=5 _in ((_let y=3 _in (y+2))+x))"))
-//                   ->equals(new _let("x", new Num(5),
-//                                    new Add(new _let("y", new Num(3), new Add(new VarExpr("y"), new Num(2))), new VarExpr("x")))));
-//     CHECK(parse_str(("(_let x=5 _in (x+7))"))->equals((new _let("x", new Num(5), new Add(new VarExpr("x"), new Num(7))))));
-// }
+    // SECTION("Let Expression with Addition") {
+    //     std::istringstream input("_let x = 10 _in (_let y = 7 _in (x + y))");
+    //     Expr* result = parse_let(input);
+    //     CHECK(result->to_string() == "(_let x=10 _in (_let y=7 _in (x+y)))");
+    // }
+}//end of test case

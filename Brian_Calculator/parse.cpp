@@ -1,5 +1,6 @@
 #include <iostream>
 #include "parse.h"
+#include <stack>
 
 //parses a numeric expression
 Expr* parse_num(std::istream &in) {
@@ -110,6 +111,10 @@ Expr* parse_addend(std::istream &in) {
 }
 
 Expr* parse_multicand(std::istream &in) {
+    // bool isBalanced = isValid(in);
+    // if (!isBalanced) {
+    //     throw std::runtime_error("Missing closing pararenthesis");
+    // }
     //consumes all white spaces
     skip_whitespace(in);
 
@@ -127,11 +132,11 @@ Expr* parse_multicand(std::istream &in) {
         //skips any next spaces
         skip_whitespace(in);
         
-        //gets next char from input
+        // gets next char from input
         next = in.get();
         //checks for closing brackets and if not throws an error
         if (next != ')') {
-            std::runtime_error("Missing closing pararenthesis");
+            throw std::runtime_error("Missing closing pararenthesis");
         }
         //returns new parsed expr
         return expr;
@@ -217,3 +222,30 @@ static void consumeWord(std::istream &in, std::string word) {
     }
 }
 
+//helper method to see if given input is valid or not
+bool isValid(std::istream& input) {
+    //creates a copy of given input instream
+    std::istream clone(input.rdbuf());
+    std::stack<char> stack;
+
+    char currentChar;
+    while (clone.get(currentChar)) {
+        if (currentChar == '(' || currentChar == '{' || currentChar == '[') {
+            stack.push(currentChar);
+        } else if (currentChar == ')' || currentChar == '}' || currentChar == ']') {
+            if (!stack.empty() && isMatchingPairs(stack.top(), currentChar)) {
+                stack.pop();
+            } else {
+                return false;
+            }
+        }
+    }
+
+    // If the stack is not empty, the expression is not balanced
+    return stack.empty();
+}
+
+bool isMatchingPairs(char open, char close) {
+    return (open == '(' && close == ')') || (open == '{' && close == '}') ||
+            (open == '[' && close == ']');
+}

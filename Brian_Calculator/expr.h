@@ -62,9 +62,6 @@ class Expr {
     std::string to_pretty_string();
     //virtual destructor in the base class of a hierarchy
     virtual ~Expr() {}
-
-    static Expr* parseExpr(const std::vector<std::string>& tokens,
-    size_t& index);
 };
 /**
  * \brief Represents a numeric constant expression.
@@ -176,8 +173,6 @@ class Add : public Expr {
     Add(Expr* l, Expr* r);
     int interp() const override;
     bool equals(const Expr* other) const override;
-    static Expr* parseExpr(const std::vector<std::string>& tokens,
-    size_t& index);
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     void print(std::ostream& os) const override;
@@ -198,8 +193,6 @@ class Mul : public Expr {
     Mul(Expr* l, Expr* r);
     int interp() const override;
     bool equals(const Expr* other) const override;
-    static Expr* parseExpr(const std::vector<std::string>& tokens,
-    size_t& index);
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     void print(std::ostream& os) const override;
