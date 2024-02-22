@@ -161,6 +161,19 @@ TEST_CASE("Parsing Let Expressions") {
         std::istringstream input("_let x = 5 _in x");
         Expr* result = parse_let(input);
         CHECK(result->to_string() == "(_let x=5 _in x)");
+        // CHECK( (new Let("x", new VarExpr("x"), new VarExpr("x")))->subst
+        // ("x", new Num(2)) ->equals(new Let("x", new Num(2), new VarExpr("x"))) );
+        // CHECK( (new Let("x", new Num(1), new Let("x",
+        // new Num(2), new VarExpr("x")))) ->interp() == 2 );
+        // CHECK( (new Let("x", new Num(1), new Add(new Let("x",
+        // new Num(2), new VarExpr("x")), new VarExpr("x")))) ->interp() == 3 );
+        CHECK( (new Let("x", new Num(5), new Add(new VarExpr("x"), new Let("y",
+        new Num(3), new Add(new VarExpr("y"), new Num(2))))))
+        ->to_pretty_string() == ((std::string)"" + "_let x = 5\n" + "_in  x + _let y = 3\n" + "         _in  y + 2") );
+
+        CHECK( (new Let("x", new Num(5), new Mul(new VarExpr("x"),
+        new Let("y", new Num(3), new Mul(new VarExpr("y"), new Num(2))))))
+         ->to_pretty_string() == ((std::string)"" + "_let x = 5\n" + "_in  x * _let y = 3\n" + "         _in  y * 2") );
     }
 
     // SECTION("Nested Let Expression") {

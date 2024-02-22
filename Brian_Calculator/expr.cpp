@@ -205,8 +205,8 @@ Let::Let(std::string l, Expr* r, Expr* body) : left(l), right(r), body(body) {}
 int Let::interp() const {
     //maybe not necessary
     int rhs = right->interp();
-    Expr* subsBody = body->subst(left, new Num(rhs));
-    return subsBody->interp();
+    //Expr* subsBody = body->subst(left, new Num(rhs));
+    return body->subst(left, new Num(rhs))->interp();
 }
 
 bool Let::equals(const Expr* other) const {
