@@ -125,7 +125,7 @@ Expr* parse_str(const std::string &str) {
 }
 
 TEST_CASE("parse") {
-    CHECK_THROWS_WITH( parse_str("()"), "Invalid input" );
+    CHECK_THROWS_WITH( parse_str("()"), "Invalid input from multicand parser" );
 
     CHECK( parse_str("(1)")->equals(new Num(1)) );
     CHECK( parse_str("(((1)))")->equals(new Num(1)) );
@@ -142,7 +142,7 @@ TEST_CASE("parse") {
     CHECK( parse_str("x")->equals(new VarExpr("x")) );
     CHECK( parse_str("xyz")->equals(new VarExpr("xyz")) );
     CHECK( parse_str("xYz")->equals(new VarExpr("xYz")) );
-    CHECK_THROWS_WITH( parse_str("x_z"), "Invalid input" );
+    CHECK_THROWS_WITH( parse_str("x_z"), "Invalid input from Expr* parse" );
 
     CHECK( parse_str("x + y")->equals(new Add(new VarExpr("x"), new VarExpr("y"))) );
 
@@ -175,3 +175,121 @@ TEST_CASE("Parsing Let Expressions") {
     //     CHECK(result->to_string() == "(_let x=10 _in (_let y=7 _in (x+y)))");
     // }
 }//end of test case
+TEST_CASE("Parse positive number", "[parse_num]") {
+  std::istringstream input("123");
+  Expr* result = parse_num(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<Num*>(result) != nullptr);
+  REQUIRE(result->interp() == 123);
+}
+TEST_CASE("Parse negative number", "[parse_num]") {
+  std::istringstream input("-456");
+  Expr* result = parse_num(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<Num*>(result) != nullptr);
+  REQUIRE(result->interp() == -456);
+}
+TEST_CASE("Invalid input with negative sign only", "[parse_num]") {
+  std::istringstream input("-");
+  REQUIRE_THROWS_AS(parse_num(input), std::runtime_error);
+}
+TEST_CASE("Parse variable with lowercase letters", "[parse_var]") {
+  std::istringstream input("abc");
+  Expr* result = parse_var(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<VarExpr*>(result) != nullptr);
+  REQUIRE(result->to_string() == "abc");
+}
+TEST_CASE("Parse variable with uppercase letters", "[parse_var]") {
+  std::istringstream input("VariableName");
+  Expr* result = parse_var(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<VarExpr*>(result) != nullptr);
+  REQUIRE(result->to_string() == "VariableName");
+}
+TEST_CASE("Parse single lowercase letter", "[parse_var]") {
+  std::istringstream input("x");
+  Expr* result = parse_var(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<VarExpr*>(result) != nullptr);
+  REQUIRE(result->to_string() == "x");
+}
+TEST_CASE("Parse variable with trailing spaces", "[parse_var]") {
+  std::istringstream input("var  ");
+  Expr* result = parse_var(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<VarExpr*>(result) != nullptr);
+  REQUIRE(result->to_string() == "var");
+}
+TEST_CASE("Parse variable with mixed case", "[parse_var]") {
+  std::istringstream input("VaRiAbLe");
+  Expr* result = parse_var(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<VarExpr*>(result) != nullptr);
+  REQUIRE(result->to_string() == "VaRiAbLe");
+}
+TEST_CASE("Parse basic Let expression", "[parse_let]") {
+  std::istringstream input("_let x = 5 _in x");
+  Expr* result = parse_let(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<Let*>(result) != nullptr);
+  REQUIRE(result->to_string() == "(_let x=5 _in x)");
+}
+TEST_CASE("Empty input should throw an error", "[parse_let]") {
+  std::istringstream input("");
+  REQUIRE_THROWS_AS(parse_let(input), std::runtime_error);
+}
+TEST_CASE("Invalid input without equals sign", "[parse_let]") {
+  std::istringstream input("_let x 5 _in x");
+  REQUIRE_THROWS_AS(parse_let(input), std::runtime_error);
+}
+TEST_CASE("Parse basic Addend expression", "[parse_addend]") {
+  std::istringstream input("5");
+  Expr* result = parse_addend(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<Num*>(result) != nullptr);
+  REQUIRE(result->to_string() == "5");
+}
+TEST_CASE("Parse Addend expression with single operand", "[parse_addend]") {
+  std::istringstream input("4");
+  Expr* result = parse_addend(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<Num*>(result) != nullptr);
+  REQUIRE(result->to_string() == "4");
+}
+TEST_CASE("Parse basic Multicand expression with number", "[parse_multicand]") {
+  std::istringstream input("42");
+  Expr* result = parse_multicand(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<Num*>(result) != nullptr);
+  REQUIRE(result->to_string() == "42");
+}
+TEST_CASE("Parse Multicand expression with negative number", "[parse_multicand]") {
+  std::istringstream input("-7");
+  Expr* result = parse_multicand(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<Num*>(result) != nullptr);
+  REQUIRE(result->to_string() == "-7");
+}
+TEST_CASE("Parse Multicand expression with parentheses", "[parse_multicand]") {
+  std::istringstream input("(3 * 7)");
+  Expr* result = parse_multicand(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<Mul*>(result) != nullptr);
+  REQUIRE(result->to_string() == "(3*7)");
+}
+TEST_CASE("Parse Multicand expression with variable", "[parse_multicand]") {
+  std::istringstream input("variable");
+  Expr* result = parse_multicand(input);
+  REQUIRE(result != nullptr);
+  REQUIRE(dynamic_cast<VarExpr*>(result) != nullptr);
+  REQUIRE(result->to_string() == "variable");
+}
+TEST_CASE("Invalid input without operand", "[parse_multicand]") {
+  std::istringstream input("* 3");
+  REQUIRE_THROWS_AS(parse_multicand(input), std::runtime_error);
+}
+TEST_CASE("Missing closing parenthesis should throw an error", "[parse_multicand]") {
+  std::istringstream input("(3 * 7");
+  REQUIRE_THROWS_AS(parse_multicand(input), std::runtime_error);
+}

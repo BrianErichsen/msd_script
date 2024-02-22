@@ -147,11 +147,11 @@ Expr* parse_multicand(std::istream &in) {
     }
     //if '_' char -- then calls for parse_let method
     else if (next == '_') {
-        return parse_var(in);
+        return parse_let(in);
     }
     else {
         consume(in, next);
-        throw std::runtime_error("Invalid input");
+        throw std::runtime_error("Invalid input from multicand parser");
     }
 }
 
@@ -177,9 +177,9 @@ Expr* parse(std::istream &in) {
     skip_whitespace(in);// skip white spaces
 
     //if different that end of input at this point
-    if (!in.eof()) {
+    if (in.peek() != EOF) {
         //throws an error for any non white spaces remaining
-        throw std::runtime_error("Invalid input");
+        throw std::runtime_error("Invalid input from Expr* parse");
     }
     //returns the ptr to the parsed expression
     return expr;
