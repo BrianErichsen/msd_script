@@ -54,7 +54,7 @@ class Expr {
      * \param os Output stream to pretty print the expression.
      * \param p Precedence level for pretty printing.
      */
-    virtual void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) = 0;
+    virtual void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) = 0;
     /**
      * \brief Converts the expression to a pretty string.
      * \return Pretty string representation of the expression.
@@ -109,7 +109,7 @@ class Num : public Expr {
      * \param os Output stream to pretty print the expression.
      * \param p Precedence level for pretty printing.
      */
-    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
 };
 /**
  * \brief Represents a variable expression.
@@ -158,7 +158,7 @@ class VarExpr : public Expr {
      * \param os Output stream to pretty print the expression.
      * \param p Precedence level for pretty printing.
      */
-    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
 };
 /**
  * \brief Represents an addition expression.
@@ -176,7 +176,7 @@ class Add : public Expr {
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     void print(std::ostream& os) const override;
-    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
     //destructor making sure that the sub expr (left and right)
     //are properly deleted
     ~Add();
@@ -196,7 +196,7 @@ class Mul : public Expr {
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     void print(std::ostream& os) const override;
-    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
     ~Mul();
 };
 //
@@ -216,7 +216,7 @@ class Let : public Expr {
     bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     void print(std::ostream& os) const override;
-    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
     ~Let();
 };
 

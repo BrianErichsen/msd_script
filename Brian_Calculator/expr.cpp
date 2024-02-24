@@ -10,7 +10,8 @@ std::string Expr::to_string() {
     return st.str();
 }
 void Expr::pretty_print_at(std::ostream &os) {
-    this->pretty_print(os, prec_none, true, 0);
+    std::streampos startPos = os.tellp();
+    this->pretty_print(os, prec_none, true, startPos);
 }
 //implements pretty print
 std::string Expr::to_pretty_string() {
@@ -48,7 +49,7 @@ Expr* Num::subst(std::string st, Expr* e) const {
 void Num::print(std::ostream& os) const {
     os << value;
 }
-void Num::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthesesis, int pos) {
+void Num::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) {
     os << this->value;
 }
 //---- end of Num class implementation
@@ -88,7 +89,7 @@ Expr* VarExpr::subst(std::string st, Expr *e) const {
 void VarExpr::print(std::ostream& os) const {
     os << varName;
 }
-void VarExpr::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthesesis, int pos) {
+void VarExpr::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) {
     os << this->varName;
 }
 //-end of VarExpr class implementation
@@ -125,7 +126,7 @@ void Add::print(std::ostream& os) const {
     os << ")";
 }
 
-void Add::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) {
+void Add::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) {
     if (p > prec_add) {
         os << "(";
     }
@@ -176,7 +177,7 @@ void Mul::print(std::ostream& os) const {
     os << ")";
 }
 
-void Mul::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) {
+void Mul::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) {
     //if precendence is higher than prec of mult then we need '('
     bool unparethesis = p < prec_mult;
 
@@ -241,13 +242,13 @@ void Let::print(std::ostream& os) const {
     body->print(os);
     os << ")";
 }
-void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, int pos) {
+void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) {
     //check if parentheses are needed
     if (p > prec_none && let_needs_parenthesesis) {
         os << "(";
     }
     //returns current pos of char in the os
-    int letPos = os.tellp();
+    std::streampos letPos = os.tellp();
     //calculates the number of spaces needed for indentation
     int n = letPos - pos;
     //print _let following by variable and equal sign
@@ -257,7 +258,7 @@ void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
     //prints newline
     os << "\n";
     //get the position after the new line char
-    int inPos = os.tellp();
+    std::streampos inPos = os.tellp();
     //adds spaces for identation
     while (n > 0) {
         os << " ";
