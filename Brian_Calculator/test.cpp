@@ -156,19 +156,26 @@ TEST_CASE("Parsing Let Expressions") {
         std::istringstream input("_let x = 5 _in x");
         Expr* result = parse_let(input);
         CHECK(result->to_string() == "(_let x=5 _in x)");
+
+        //tests the subst method for nested cases of let expression
         // CHECK( (new Let("x", new VarExpr("x"), new VarExpr("x")))->subst
         // ("x", new Num(2)) ->equals(new Let("x", new Num(2), new VarExpr("x"))) );
+
+        // checks proper interp
         // CHECK( (new Let("x", new Num(1), new Let("x",
         // new Num(2), new VarExpr("x")))) ->interp() == 2 );
+
         // CHECK( (new Let("x", new Num(1), new Add(new Let("x",
         // new Num(2), new VarExpr("x")), new VarExpr("x")))) ->interp() == 3 );
+
+        //pretty print testing with nested let expressions
         // CHECK( (new Let("x", new Num(5), new Add(new VarExpr("x"), new Let("y",
         // new Num(3), new Add(new VarExpr("y"), new Num(2))))))
         // ->to_pretty_string() == ((std::string)"" + "_let x = 5\n" + "_in  x + _let y = 3\n" + "         _in  y + 2") );
 
-        // CHECK( (new Let("x", new Num(5), new Mul(new VarExpr("x"),
-        // new Let("y", new Num(3), new Mul(new VarExpr("y"), new Num(2))))))
-        //  ->to_pretty_string() == ((std::string)"" + "_let x = 5\n" + "_in  x * _let y = 3\n" + "         _in  y * 2") );
+        CHECK( (new Let("x", new Num(5), new Mul(new VarExpr("x"),
+        new Let("y", new Num(3), new Mul(new VarExpr("y"), new Num(2))))))
+         ->to_pretty_string() == ((std::string)"" + "_let x = 5\n" + "_in  x * _let y = 3\n" + "         _in  y * 2") );
 
     //     CHECK( (new Let("x", new Num(5), new VarExpr("x")))
     //  ->to_pretty_string()

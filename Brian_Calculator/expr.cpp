@@ -228,11 +228,11 @@ bool Let::has_variable() const {
 
 Expr* Let::subst(std::string st, Expr *e) const {
     // creates new expressions for right and body recursively
-    Expr* rhs = right->subst(st, e);
+    Expr* rhs = this->right->subst(st, e);
     //if is equal not necessary
-    Expr* subsBody = body->subst(st, e);
+    Expr* subsBody = this->body->subst(st, e);
     //creates new expr with new input
-    return new Let(left, rhs, subsBody);
+    return new Let(this->left, rhs, subsBody);
 }
 
 void Let::print(std::ostream& os) const {
@@ -254,7 +254,7 @@ void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
     //print _let following by variable and equal sign
     os << "_let " << this->left << " = ";
     //pretty print rhs of the expression
-    right->pretty_print(os, p, let_needs_parenthesesis, letPos);
+    right->pretty_print(os, p, false, letPos);
     //prints newline
     os << "\n";
     //get the position after the new line char
@@ -267,7 +267,7 @@ void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
     //prints _in by spaces for identation
     os << "_in  ";
     //pretty print the body
-    body->pretty_print(os, prec_none, let_needs_parenthesesis, inPos);
+    body->pretty_print(os, prec_none, false, inPos);
 
     //checks if parentheses are needed
     if (p > prec_none && let_needs_parenthesesis) {
