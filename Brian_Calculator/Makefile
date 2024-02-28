@@ -31,3 +31,6 @@ run: $(TARGET)
 
 documentation: Doxyfile
 	doxygen $<
+
+test_msd: test_msdscript.cpp exec.cpp expr.h
+	$(CXX) $(CXXFLAGS) test_msdscript.cpp exec.cpp -o test_msd

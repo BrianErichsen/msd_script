@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     }
     if (type == do_help) {
         std::cout << "Available options are : \n";
-        std::cout << "--test, --interp, --print, --pretty_print\n";
+        std::cout << "--test, --interp, --print, --pretty-print\n";
         exit(0);
     }
     try {

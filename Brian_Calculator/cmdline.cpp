@@ -28,7 +28,7 @@ run_mode_t use_arguments(int argc, char* argv[]) {
             return do_interp;
         } else if (strcmp(argv[i], "--print") == 0) {
             return do_print;
-        } else if(strcmp(argv[i], "--pretty_print") == 0) {
+        } else if(strcmp(argv[i], "--pretty-print") == 0) {
             return do_pretty_print;
         } else {
             //if reached here; then given argument is invalid

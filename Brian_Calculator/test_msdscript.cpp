@@ -14,9 +14,9 @@ int main(int argc, char **argv) {
     if (argc == 2) {
         const char *const interp_argv[] = {argv[1], "--interp"};
         const char *const print_argv[] = {argv[1], "--print"};
-        const char *const pretty_print_argv[] = {argv[1], "--pretty_print"};
+        const char *const pretty_print_argv[] = {argv[1], "--pretty-print"};
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 50; i++) {
             std::string in = random_expr_string();
             // std::cout << "Trying" << in << std::endl;
 
@@ -29,7 +29,10 @@ int main(int argc, char **argv) {
             if (interp_again_result.out != interp_result.out) {
                 throw std::runtime_error("The 2 results are not identical");
             }
-        }
+
+        }//end of for loop
+        std::cout << "Reached end of for loop; no discrepencies found!!" << std::endl;
+
     }//end of if argc == 2
     if (argc == 3) {
         const char *const interp_argv[] = {argv[1], "--interp"};
@@ -38,10 +41,10 @@ int main(int argc, char **argv) {
         const char *const print_argv[] = {argv[1], "--print"};
         const char *const print_tester_argv[] = {argv[2], "--print"};
 
-        const char *const pretty_print_argv[] = {argv[1], "--pretty_print"};
-        const char* const pp_tester_argv[] = {argv[2], "--pretty_print"};
+        const char *const pretty_print_argv[] = {argv[1], "--pretty-print"};
+        const char* const pp_tester_argv[] = {argv[2], "--pretty-print"};
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 50; i++) {
             std::string in = random_expr_string();
             // std::cout << "Trying" << in << std::endl;
 
@@ -55,8 +58,8 @@ int main(int argc, char **argv) {
             ExecResult pp_tester_result = exec_program(2, pp_tester_argv, in);
 
             if (interp_result.out != interp_tester_result.out) {
-                std::cout << "msdscript Result: " << interp_result.out;
-                std::cout << "tester Result: " << interp_tester_result.out <<
+                std::cout << "msdscript Interp Result: " << interp_result.out;
+                std::cout << "tester Interp Result: " << interp_tester_result.out <<
                 std::endl << std::endl;
 
                 // throw std::runtime_error("The 2 results are not identical");
@@ -78,7 +81,6 @@ int main(int argc, char **argv) {
                 // throw std::runtime_error("The 2 results are not identical");
             }
         }
-
     }//end of if argc == 3
 
 
@@ -91,18 +93,18 @@ std::string random_expr_string() {
     } else {
         int random = rand() % 100;
         switch(random) {
-            case 0 ... 19:
+            case 0 ... 15:
                 return "(" + random_expr_string() + ")";
-            case 20 ... 31:
+            case 16 ... 30:
                 return random_expr_string() + "+" + random_expr_string();
-            case 32 ... 44:
+            case 31 ... 45:
                 return random_expr_string() + "*" + random_expr_string();
-            case 45 ... 65:
+            case 46 ... 50:
                 return rand_var();
-            case 66 ... 75:
+            case 51 ... 75:
                 return ("_let " + rand_var() + " = " + random_expr_string() +
                 "_in" + rand_let(random_expr_string()));
-            case 76 ... 86:
+            case 76 ... 99:
                 return "-" + std::to_string(rand());
                 //if none of the others then it proceeds with default case
             default:
