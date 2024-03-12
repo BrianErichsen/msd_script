@@ -98,12 +98,16 @@ void VarExpr::pretty_print(std::ostream& os, precedence_t p, bool let_needs_pare
 Add::Add(Expr* l, Expr* r) : left(l), right(r) {}
 
 Val* Add::interp() const {
-    // return left->interp() + right->interp();
     Val* leftVal = left->interp();
     Val* rightVal = right->interp();
 
-    return leftVal->add_to(rightVal);
+    Val* result = leftVal->add_to(rightVal);
     
+    //prevents memory leak
+    delete leftVal;
+    delete rightVal;
+
+    return result;
 }
 bool Add::equals(const Expr* other) const {
     //first check for a valid pointer to see if classes match
@@ -154,11 +158,16 @@ Add::~Add() {
 Mul::Mul(Expr* l, Expr* r) : left(l), right(r) {}
 
 Val* Mul::interp() const {
-    // return left->interp() * right->interp();
     Val* leftVal = left->interp();
     Val* rightVal = right->interp();
 
-    return leftVal->mult_with(rightVal);
+    Val* result = leftVal->mult_with(rightVal);
+
+    //prevents memory leak
+    delete leftVal;
+    delete rightVal;
+
+    return result;
 }
 
 bool Mul::equals(const Expr* other) const {
@@ -222,7 +231,8 @@ Val* Let::interp() const {
     Val* rhsVal = right->interp();
     Expr* rightExpr = rhsVal->to_expr();
     Val* subsBodyVal = body->subst(left, rightExpr)->interp();
-
+    
+    //prevents memory leak
     delete rhsVal;
 
     return subsBodyVal;

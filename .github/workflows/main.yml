@@ -1,12 +1,15 @@
 name: MSD
+
 on:
   push:
+  
 jobs:
   build:
     runs-on: macos-latest
     steps:
     - name: Checkout v1
-    uses: actions/checkout@v1
+      uses: actions/checkout@v1
     - name: Run test
-    run: make test
-    working-directory: path/to/dir
+      run: make test
+      working-directory: /Users/brianerichsenfagundes/Desktop/msdScript/
+

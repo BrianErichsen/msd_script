@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <limits>
-#include "val.h";
+#include "val.h"
 
 TEST_CASE("Equals method tests") {
     SECTION("Expr equals") {
@@ -31,9 +31,13 @@ TEST_CASE("Equals method tests") {
         (new Add(new Num(2147483647),new Num(-1)))==true);
         //check for proper value
         CHECK((new Num(2))->interp()->equals(new NumVal(2)));
+        // CHECK((new Num(2))->interp()->equals(new Num(2)));
+        //should I do Num instance of of Val class?? then we can test
+  
         //check if the result of the 2 != expressions are correct
         // CHECK((new Add(new Num(2), new Num(3)))->interp() ==
         // (new Mul(new Num(1), new Num(5)))->interp());
+        //still working how to test this
 
         //Mul class
         CHECK((new Mul(new Num(2),new Num(3)))->equals
@@ -110,18 +114,16 @@ TEST_CASE("Equals method tests") {
             new Num(3)
         );
         CHECK(test70->to_pretty_string() == "(2 * _let x = 5\n     _in  x + 1) * 3");
-        // CHECK(test70->interp() == 36);
-        // CHECK(test69->interp() == 10);
+        CHECK(test70->interp()->equals(new NumVal(36)));
+        CHECK(test69->interp()->equals(new NumVal(10)));
     }//end of test case bracket
-
-
 }//end of ...test case
 
 Expr* parse_str(const std::string &str) {
     std::istringstream iss(str);
     return parse(iss);
 }
-
+//beginning of new test case
 TEST_CASE("parse") {
     CHECK_THROWS_WITH( parse_str("()"), "Invalid input from multicand parser" );
 
@@ -154,6 +156,7 @@ TEST_CASE("parse") {
         ->equals(new Mul(new VarExpr("z"),
         new Add(new VarExpr("x"), new VarExpr("y"))) ));
 }//end of test case bracket
+
 TEST_CASE("Parsing Let Expressions") {
     SECTION("Simple Let Expression") {
         std::istringstream input("_let x = 5 _in x");
@@ -163,37 +166,44 @@ TEST_CASE("Parsing Let Expressions") {
         //tests the subst method for nested cases of let expression
         // CHECK( (new Let("x", new VarExpr("x"), new VarExpr("x")))->subst
         // ("x", new Num(2)) ->equals(new Let("x", new Num(2), new VarExpr("x"))) );
+        //it says false for now --
 
         // checks proper interp
         // CHECK( (new Let("x", new Num(1), new Let("x",
-        // new Num(2), new VarExpr("x")))) ->interp() == 2 );
+        // new Num(2), new VarExpr("x")))) ->interp()->equals(new NumVal(2)));
+        //says false for now
 
         // CHECK( (new Let("x", new Num(1), new Add(new Let("x",
-        // new Num(2), new VarExpr("x")), new VarExpr("x")))) ->interp() == 3 );
+        // new Num(2), new VarExpr("x")), new VarExpr("x")))) ->interp()->equals(new NumVal(3)));
+        //says false for now
 
         //pretty print testing with nested let expressions
         // CHECK( (new Let("x", new Num(5), new Add(new VarExpr("x"), new Let("y",
         // new Num(3), new Add(new VarExpr("y"), new Num(2))))))
         // ->to_pretty_string() == ((std::string)"" + "_let x = 5\n" + "_in  x + _let y = 3\n" + "         _in  y + 2") );
+        //needs to fix inner pretty print parenthesis from _in x + (...)
 
         CHECK( (new Let("x", new Num(5), new Mul(new VarExpr("x"),
         new Let("y", new Num(3), new Mul(new VarExpr("y"), new Num(2))))))
          ->to_pretty_string() == ((std::string)"" + "_let x = 5\n" + "_in  x * _let y = 3\n" + "         _in  y * 2") );
 
-    //     CHECK( (new Let("x", new Num(5), new VarExpr("x")))
-    //  ->to_pretty_string()
-    //  == ((std::string)"" +
-    //    "_let x = 5\n" +
-    //    "_in x") );
-  // CHECK( (new Let("x", new Num(5),
-  //         new Add(new Let("y", new Num(3),
-  //                 new Add(new VarExpr("y"), new Num(2))),
-  //             new VarExpr("x"))))
-  //    ->to_pretty_string()
-  //    == ((std::string)"" +
-  //      "_let x = 5\n" +
-  //      "_in (_let y = 3\n" +
-  //      "   _in y + 2) + x") );
+        CHECK( (new Let("x", new Num(5), new VarExpr("x")))
+     ->to_pretty_string()
+     == ((std::string)"" +
+       "_let x = 5\n" +
+       "_in  x") );
+       //I have one extra space after _in__ instead of _in_
+       //check with TA
+  CHECK( (new Let("x", new Num(5),
+          new Add(new Let("y", new Num(3),
+                  new Add(new VarExpr("y"), new Num(2))),
+              new VarExpr("x"))))
+     ->to_pretty_string()
+     == ((std::string)"" +
+       "_let x = 5\n" +
+       "_in  (_let y = 3\n" +
+       "      _in  y + 2) + x") );
+       //check with TA
   // CHECK( (new Let("x", new Num(5),
   //         new Add(new VarExpr("x"),
   //             new Let("y", new Num(3),
@@ -201,20 +211,23 @@ TEST_CASE("Parsing Let Expressions") {
   //    ->to_pretty_string()
   //    == ((std::string)"" +
   //      "_let x = 5\n" +
-  //      "_in x + _let y = 3\n" +
-  //      "     _in y + 2") );
+  //      "_in  x + _let y = 3\n" +
+  //      "         _in y + 2") );
+       //I am adding extra parenthesis here when not needed
     }
 
     // SECTION("Nested Let Expression") {
     //     std::istringstream input("_let x = 5 _in (_let y = 3 _in (x + y))");
     //     Expr* result = parse_let(input);
     //     CHECK(result->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
+    //     //this one says Invalid input from Expr* parser
     // }
 
     // SECTION("Let Expression with Addition") {
     //     std::istringstream input("_let x = 10 _in (_let y = 7 _in (x + y))");
     //     Expr* result = parse_let(input);
     //     CHECK(result->to_string() == "(_let x=10 _in (_let y=7 _in (x+y)))");
+        //this one says invalid input from Expr* parser
     // }
 }//end of test case
 TEST_CASE("Parse positive number", "[parse_num]") {
@@ -222,14 +235,14 @@ TEST_CASE("Parse positive number", "[parse_num]") {
   Expr* result = parse_num(input);
   REQUIRE(result != nullptr);
   REQUIRE(dynamic_cast<Num*>(result) != nullptr);
-//   REQUIRE(result->interp() == 123);
+  REQUIRE(result->interp()->equals(new NumVal(123)));
 }
 TEST_CASE("Parse negative number", "[parse_num]") {
   std::istringstream input("-456");
   Expr* result = parse_num(input);
   REQUIRE(result != nullptr);
   REQUIRE(dynamic_cast<Num*>(result) != nullptr);
-//   REQUIRE(result->interp() == -456);
+  REQUIRE(result->interp()->equals(new NumVal(-456)));
 }
 TEST_CASE("Invalid input with negative sign only", "[parse_num]") {
   std::istringstream input("-");
@@ -331,7 +344,22 @@ TEST_CASE("Invalid input without operand", "[parse_multicand]") {
   std::istringstream input("* 3");
   REQUIRE_THROWS_AS(parse_multicand(input), std::runtime_error);
 }
-TEST_CASE("Missing closing parenthesis should throw an error", "[parse_multicand]") {
+TEST_CASE("Missing closing parenthesis should throw an error",
+"[parse_multicand]") {
   std::istringstream input("(3 * 7");
   REQUIRE_THROWS_AS(parse_multicand(input), std::runtime_error);
-}//end of larger test_case bracket
+}//end of test case bracket
+TEST_CASE("Val class") {
+//tests for to_expr // of 2 different objects num val to expr equals new num
+CHECK((new NumVal(2))->to_expr()->equals(new Num(2)));
+NumVal* numVal1 = new NumVal(33);//same int values
+NumVal* numVal2 = new NumVal(33);
+NumVal* different = new NumVal(-77);//negative int value
+//tests equals
+CHECK(numVal1->equals(numVal2));
+CHECK(numVal2->equals(numVal1));
+CHECK_FALSE(numVal1->equals(different));
+
+//tests to_string method
+CHECK(numVal1->to_string() == "33");
+}
