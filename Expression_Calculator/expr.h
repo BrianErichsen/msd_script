@@ -7,8 +7,9 @@
  */
 typedef enum {
   prec_none = 0,
-  prec_add = 1,
-  prec_mult = 2,
+  prec_equal = 1,
+  prec_add = 2,
+  prec_mult = 3,
 } precedence_t;
 /**
  * \brief Base class for representing expressions.
@@ -65,7 +66,7 @@ class Expr {
     std::string to_pretty_string();
     //virtual destructor in the base class of a hierarchy
     virtual ~Expr() {}
-};
+};//end of Expr class bracket
 /**
  * \brief Represents a numeric constant expression.
  */
@@ -221,6 +222,62 @@ class Let : public Expr {
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
     ~Let();
-};
+};//end of let class bracket
+
+/**
+ * \brief sub class for representing Boolean expressions.
+ */
+class BoolExpr : public Expr {
+private:
+    bool val;
+
+public:
+    BoolExpr(bool v);//public constructor
+    Val* interp() const override;
+    bool equals(const Expr* other) const override;
+    Expr* subst(std::string st, Expr *e) const override;
+    void print(std::ostream& os) const override;
+    void pretty_print(std::ostream &os, precedence_t p,
+    bool let_needs_parenthesesis, std::streampos &pos) override;
+    bool has_variable() const override;
+    ~BoolExpr();
+};//end of BoolExpr bracket
+
+class IfExpr : public Expr {
+    private:
+    Expr* test_part;
+    Expr* then_part;
+    Expr* else_part;
+
+    public:
+    IfExpr(Expr* test, Expr* then, Expr* else_);
+    Val* interp() const override;
+    bool equals(const Expr* other) const override;
+    Expr* subst(std::string st, Expr *e) const override;
+    void print(std::ostream& os) const override;
+    void pretty_print(std::ostream &os, precedence_t p,
+    bool let_needs_parenthesesis, std::streampos &pos) override;
+    bool has_variable() const override;
+    ~IfExpr();
+};//end of class IfExpr bracket
+
+class EqExpr : public Expr {
+private:
+    Expr* right;
+    Expr* left;
+
+public:
+    EqExpr(Expr* left, Expr* right);
+    EqExpr(int lhs, int rhs);
+    EqExpr(std::string lhs, int rhs);
+    Val* interp() const override;
+    bool equals(const Expr* other) const override;
+    Expr* subst(std::string st, Expr *e) const override;
+    void print(std::ostream& os) const override;
+    void pretty_print(std::ostream &os, precedence_t p,
+    bool let_needs_parenthesesis, std::streampos &pos) override;
+    bool has_variable() const override;
+    ~EqExpr();
+};//end of EqExpr bracket
 
 #endif // EXPR_H

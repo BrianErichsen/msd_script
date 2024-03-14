@@ -363,3 +363,32 @@ CHECK_FALSE(numVal1->equals(different));
 //tests to_string method
 CHECK(numVal1->to_string() == "33");
 }
+TEST_CASE("BoolVal && BoolExpr classes methods") {
+  SECTION("BoolExpr class") {
+    BoolExpr trueExpr(true);
+        BoolExpr falseExpr(false);
+
+        // Test interp method
+        Val* trueVal = trueExpr.interp();
+        Val* falseVal = falseExpr.interp();
+
+        // CHECK(dynamic_cast<BoolVal*>(trueVal)->getVal() == true);
+        // CHECK(dynamic_cast<BoolVal*>(falseVal)->getVal() == false);
+
+        // Test equals method
+        BoolExpr trueExprCopy(true);
+        BoolExpr falseExprCopy(false);
+
+        CHECK(trueExpr.equals(&trueExprCopy));
+        CHECK(falseExpr.equals(&falseExprCopy));
+        CHECK_FALSE(trueExpr.equals(&falseExpr));
+        CHECK_FALSE(falseExpr.equals(&trueExpr));
+
+        // Test subst method
+        Expr* substTrueExpr = trueExpr.subst("x", new Num(5));
+        Expr* substFalseExpr = falseExpr.subst("y", new Num(10));
+
+        CHECK(substTrueExpr->equals(&trueExpr));
+        CHECK(substFalseExpr->equals(&falseExpr));
+  }
+}

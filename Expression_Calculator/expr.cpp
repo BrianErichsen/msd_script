@@ -307,3 +307,201 @@ Let::~Let() {
     delete right;
     delete body;
 }
+//end of Let class implementations
+
+//Beguinning of Bool Expr methods implementation
+
+//public constructor with param boolean v // sets member to that boolean
+BoolExpr::BoolExpr(bool v) {
+    val = v;
+}
+
+bool BoolExpr::equals(const Expr* rhs) const {
+    //compares pointer with class of rhs // if BoolExpr then
+    if (const BoolExpr* other_bool = dynamic_cast<const BoolExpr*>(rhs)) {
+        //returns boolean expression where both have equal val booleans
+        return val == other_bool->val;
+    }
+    //if reached here //no valid pointer
+    return false;
+}
+
+Val* BoolExpr::interp() const {
+    return new BoolVal(val);//returns a bool val expression with same val
+}
+
+Expr* BoolExpr::subst(std::string st, Expr *e) const {
+    return new BoolExpr(val);//returns this // check with TA
+}
+
+void BoolExpr::print(std::ostream& os) const {
+    //no parenthesis for true or false //
+    //if val is true then prints true and so forth
+    val ? os << "_true" : os << "_false";
+}
+
+void BoolExpr::pretty_print(std::ostream &os, precedence_t p,
+    bool let_needs_parenthesesis, std::streampos &pos) {
+        //no parenthesis for true or false //
+        //if val is true then prints true and so forth
+        val ? os << "_true" : os << "_false";
+}
+
+bool BoolExpr::has_variable() const {
+    return false;//boolean expr has no variables
+}
+//public destructor
+BoolExpr::~BoolExpr() {
+
+}
+//------------end of BoolExpr methods------------------//
+//                                                     //
+// --- Beginning of IfExpr methods implementation/methods
+
+//public constructor for IfExpr
+IfExpr::IfExpr(Expr* test, Expr* then, Expr* else_) {
+    test_part = test;
+    then_part = then;
+    else_part = else_;
+}
+
+bool IfExpr::equals(const Expr* other) const {
+    //checks for pointer of valid IfExpr in type of class from other
+    if (const IfExpr* other_if = dynamic_cast<const IfExpr*>(other)) {
+        //returns true only if all 3 Expr are equal and from same class
+        return test_part->equals(other_if->test_part) &&
+        then_part->equals(other_if->then_part) && else_part->equals(
+            other_if->else_part
+        );
+    }
+    //if reached here returns false // other has different class
+    return false;
+}
+
+Val* IfExpr::interp() const {
+    if (test_part->interp()->is_true()) {
+        return then_part->interp();
+        //does it need delete for memory leaks?
+    }
+    return else_part->interp();
+}
+
+Expr* IfExpr::subst(std::string st, Expr *e) const {
+    return (new IfExpr(test_part->subst(st, e), then_part->subst(st, e),
+    else_part->subst(st, e)));
+}
+
+void IfExpr::print(std::ostream& os) const {
+    os << "(_if ";
+    test_part->print(os);
+    os << "_then ";
+    then_part->print(os);
+    os << "_else ";
+    else_part->print(os);
+    os << ")";
+}//end of ifExpr print bracket
+
+void IfExpr::pretty_print(std::ostream &os, precedence_t p,
+bool let_needs_parenthesesis, std::streampos &pos) {
+    if (let_needs_parenthesesis) {
+        os << "(";
+    }
+    int indentation = os.tellp() - pos;
+    os << "_if ";
+    test_part->pretty_print(os, prec_none, false, pos);
+    os << "\n";
+
+    pos = os.tellp();
+
+    os << std::string(indentation, ' ') << "_then ";
+    then_part->pretty_print(os, prec_none, false, pos);
+    os << "\n";
+    pos = os.tellp();
+
+    os << std::string(indentation, ' ') << "_else ";
+    else_part->pretty_print(os, prec_none, false, pos);
+
+    if (let_needs_parenthesesis) {
+        os << ")";
+    }
+}//end of IfExpr pretty print bracket
+
+bool IfExpr::has_variable() const {
+    
+}
+
+IfExpr::~IfExpr() {
+
+}
+//--end of class IfExpr implementation
+//
+//---Beguinning of class EqExpr implementation
+
+//public constructor that 2 expression as arguments
+EqExpr::EqExpr(Expr* left, Expr* right) {
+    this->right = right;
+    this->left = left;
+}
+
+//takes int for lhs and int for rhs
+EqExpr::EqExpr(int lhs, int rhs) {
+    left = new Num(lhs);
+    right = new Num(rhs);
+}
+//takes a string to create new var in the left and an int num expr for rhs
+EqExpr::EqExpr(std::string lhs, int rhs) {
+    left = new VarExpr(lhs);
+    right = new Num(rhs);
+}
+
+bool EqExpr::equals(const Expr* rhs) const {
+    //checks for pointer of valid IfExpr in type of class from other
+    if (const EqExpr* other = dynamic_cast<const EqExpr*>(rhs)) {
+        //returns true only if all 3 Expr are equal and from same class
+        return right->equals(other->right) && left->equals(other->left);
+    }
+    //if reached here returns false // other has different class
+    return false;
+}
+
+Val* EqExpr::interp() const {
+    //check if needs to delete to prevent memory leak
+    return new BoolVal(left->interp()->equals(right->interp()));
+}
+
+Expr* EqExpr::subst(std::string st, Expr *e) const {
+    return new EqExpr(left->subst(st, e), right->subst(st, e));
+    //check if needs to delete for memory leak
+}
+
+void EqExpr::print(std::ostream& os) const {
+    os << "(";
+    left->print(os);
+    os << "==";
+    right->print(os);
+    os << ")";
+}//end of print bracket for EqExpr method
+
+void EqExpr::pretty_print(std::ostream &os, precedence_t p,
+bool let_needs_parenthesesis, std::streampos &pos) {
+    bool print_parent = prec_equal <= p;
+    if (print_parent) {
+        os << "(";
+    }
+    left->pretty_print(os, prec_equal, true, pos);
+    os << " == ";
+    right->pretty_print(os, prec_none, !print_parent && let_needs_parenthesesis, pos);
+    if (print_parent) {
+        os << ")";
+    }
+}//end of pretty print bracket for EqExpr method
+
+bool EqExpr::has_variable() const {
+
+}
+
+EqExpr::~EqExpr() {
+
+}
+
+

@@ -16,6 +16,7 @@ public:
     virtual Val* mult_with(const Val* rhs) const = 0;
     virtual std::string to_string() const = 0;
     virtual bool equals(Val* rhs) const = 0;
+    virtual bool is_true() const = 0;
     //
     virtual int to_int() const = 0;
 
@@ -34,6 +35,22 @@ public:
     std::string to_string() const override;
     bool equals(Val* rhs) const override;
     int to_int() const override;
+    bool is_true() const override;
 };//end of class NumVal bracket
+
+class BoolVal : public Val {
+private:
+    bool val;
+
+public:
+    BoolVal(bool v);
+    Expr* to_expr() const override;
+    Val* add_to(const Val* rsh) const override;
+    Val* mult_with(const Val* rhs) const override;
+    std::string to_string() const override;
+    bool equals(Val* rhs) const override;
+    int to_int() const override;
+    bool is_true() const override;
+};
 
 #endif // VAL_H

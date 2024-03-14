@@ -46,3 +46,51 @@ bool NumVal::equals(Val* rhs) const {
 int NumVal::to_int() const {
     return val;
 }
+
+bool NumVal::is_true() const {
+    throw std::runtime_error("A number cannot be a boolean!");
+}
+//end of NumVal class implementation
+
+//Beginning of BoolVal class implementation
+
+//public constructor that takes boolean as an argument
+BoolVal::BoolVal(bool v) {
+    val = v;
+}
+
+Expr* BoolVal::to_expr() const {
+    //returns the equivalent of itself
+    return new BoolExpr(val);
+}
+
+bool BoolVal::equals(Val* other) const {
+    if (const BoolVal* otherBool = dynamic_cast<const BoolVal*>(other)) {
+        //returns this.val == other.val boolean expression
+        return val == otherBool->val;
+    } //false if different classes - non valid pointer //if reached here
+    return false;
+}
+
+Val* BoolVal::add_to(const Val* rhs) const {
+    throw std::runtime_error("Addition of non numbers!");
+}
+
+Val* BoolVal::mult_with(const Val* rhs) const {
+    throw std::runtime_error("Multiplication of non numbers!");
+}
+
+std::string BoolVal::to_string() const {
+    //no parenthesis for true or false //
+    //if val is true then prints true and so forth
+    return val ? "_true" : "_false";
+}
+
+bool BoolVal::is_true() const {
+    return val;//returns its own boolean result
+}
+
+int BoolVal::to_int() const {
+    //booleans are not integers
+    throw std::runtime_error("A boolean cannot be a integer!");
+}
