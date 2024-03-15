@@ -263,8 +263,8 @@ class IfExpr : public Expr {
 
 class EqExpr : public Expr {
 private:
-    Expr* right;
     Expr* left;
+    Expr* right;
 
 public:
     EqExpr(Expr* left, Expr* right);

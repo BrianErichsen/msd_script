@@ -111,11 +111,7 @@ Expr* parse_addend(std::istream &in) {
 }
 
 Expr* parse_multicand(std::istream &in) {
-    // bool isBalanced = isValid(in);
-    // if (!isBalanced) {
-    //     throw std::runtime_error("Missing closing pararenthesis");
-    // }
-    //consumes all white spaces
+    std::string keyword;
     skip_whitespace(in);
 
     int next = in.peek();
@@ -147,7 +143,22 @@ Expr* parse_multicand(std::istream &in) {
     }
     //if '_' char -- then calls for parse_let method
     else if (next == '_') {
-        return parse_let(in);
+        consume(in, '_');
+        keyword = parse_keyword(in);
+        
+        if (keyword == "let") {
+            return parse_let(in);
+        }
+        else if (keyword == "if") {
+            return parse_if(in);
+        }
+        else if (keyword == "true") {
+            return new BoolExpr(true);
+        }
+        else if (keyword == "false") {
+            return new BoolExpr(false);
+        }
+
     }
     else {
         consume(in, next);
@@ -222,30 +233,55 @@ static void consumeWord(std::istream &in, std::string word) {
     }
 }
 
-//helper method to see if given input is valid or not
-bool isValid(std::istream& input) {
-    //creates a copy of given input instream
-    std::istream clone(input.rdbuf());
-    std::stack<char> stack;
+Expr* parse_if(std::istream &in) {
+    //try without skipping white spaces --
+    skip_whitespace(in);
+    // std::string msg = "Wrong format for If Expression";
+    Expr* test_part = parse_expr(in);
+    
+    skip_whitespace(in);
+    consumeWord(in, "_then");
+    Expr* then_part = parse_expr(in);
 
-    char currentChar;
-    while (clone.get(currentChar)) {
-        if (currentChar == '(' || currentChar == '{' || currentChar == '[') {
-            stack.push(currentChar);
-        } else if (currentChar == ')' || currentChar == '}' || currentChar == ']') {
-            if (!stack.empty() && isMatchingPairs(stack.top(), currentChar)) {
-                stack.pop();
-            } else {
-                return false;
-            }
-        }
+    skip_whitespace(in);
+    consumeWord(in, "_else");
+
+    skip_whitespace(in);
+    Expr* else_part = parse_expr(in);
+    
+    return new IfExpr(test_part, then_part, else_part);
+}
+// <expr> = <comparg> | <comparg> == <expr>
+// <comparg> = <addend> | <addend> + <comparg>
+//<addend> = <multicand> | <multicand * <addend>
+//<multicand> = <number> | (<expr>) | <variable> |
+//_let <variable> = <expr> _in <expr> | _true | _false |
+//_if <expr> _then <expr> _else <expr>
+Expr* parse_comparg(std::istream &in) {
+    Expr* left = parse_addend(in);
+    skip_whitespace(in);
+
+    int next = in.peek();
+    if (next == '+') {
+        consume(in, '+');
+        Expr* right = parse_comparg(in);
+        return new Add(left, right);
     }
-
-    // If the stack is not empty, the expression is not balanced
-    return stack.empty();
+    return left;
 }
 
-bool isMatchingPairs(char open, char close) {
-    return (open == '(' && close == ')') || (open == '{' && close == '}') ||
-            (open == '[' && close == ']');
+std::string parse_keyword(std::istream &in) {
+    std::string keyword;
+    
+    while (true) {
+        int ch = in.peek();
+        if (isalpha(ch)) {
+            consume(in, ch);
+            char c = ch;
+            keyword += c;
+        } else
+        break;
+    }
+    return keyword;
 }
+
