@@ -137,13 +137,14 @@ void Add::print(std::ostream& os) const {
 }
 
 void Add::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) {
-    if (p > prec_add) {
+    bool print_parent = prec_add <= p;
+    if (print_parent) {
         os << "(";
     }
     this->left->pretty_print(os, static_cast<precedence_t>(prec_add + 1), true, pos);
     os << " + ";
     //is it prec_add or prec none here ??
-    this->right->pretty_print(os, prec_add, true, pos);
+    this->right->pretty_print(os, prec_equal, let_needs_parenthesesis && !print_parent, pos);
     if (p > prec_add) {
         os << ")";
     }
@@ -223,14 +224,9 @@ Mul::~Mul() {
 Let::Let(std::string l, Expr* r, Expr* body) : left(l), right(r), body(body) {}
 
 Val* Let::interp() const {
-    //maybe not necessary
-    // int rhs = right->interp();
-    // //Expr* subsBody = body->subst(left, new Num(rhs));
-    // return body->subst(left, new Num(rhs))->interp();
-
     Val* rhsVal = right->interp();
     Expr* rightExpr = rhsVal->to_expr();
-    Val* subsBodyVal = body->subst(left, rightExpr)->interp();
+    Val* subsBodyVal = body->subst(this->left, rightExpr)->interp();
     
     //prevents memory leak
     delete rhsVal;
@@ -255,12 +251,16 @@ bool Let::has_variable() const {
 }
 
 Expr* Let::subst(std::string st, Expr *e) const {
-    // creates new expressions for right and body recursively
+    //substitute the right first so val of higher val is passed into lower
     Expr* rhs = this->right->subst(st, e);
-    //if is equal not necessary
-    Expr* subsBody = this->body->subst(st, e);
-    //creates new expr with new input
-    return new Let(this->left, rhs, subsBody);
+    //if same for st and left(string var) then update expression
+    if (this->left == st) {
+        return new Let(this->left, rhs, this->body);
+    } else {
+        Expr* subsBody = this->body->subst(st, e);
+        //creates new expr with new input
+        return new Let(st, rhs, subsBody);
+    }
 }
 
 void Let::print(std::ostream& os) const {
@@ -275,27 +275,23 @@ void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
     if (p > prec_none && let_needs_parenthesesis) {
         os << "(";
     }
+    int indentation = os.tellp() - pos;
     //returns current pos of char in the os
-    std::streampos letPos = os.tellp();
     //calculates the number of spaces needed for indentation
-    int n = letPos - pos;
+
     //print _let following by variable and equal sign
     os << "_let " << this->left << " = ";
     //pretty print rhs of the expression
-    right->pretty_print(os, p, false, letPos);
+    this->right->pretty_print(os, prec_none, false, pos);
     //prints newline
     os << "\n";
     //get the position after the new line char
-    std::streampos inPos = os.tellp();
-    //adds spaces for identation
-    while (n > 0) {
-        os << " ";
-        n--;
-    }
-    //prints _in by spaces for identation
+    pos = os.tellp();
+    //prints _in by spaces for indentation
+    os << std::string(indentation, ' ');
     os << "_in  ";
     //pretty print the body
-    body->pretty_print(os, prec_none, false, inPos);
+    this->body->pretty_print(os, prec_none, false, pos);
 
     //checks if parentheses are needed
     if (p > prec_none && let_needs_parenthesesis) {
@@ -403,7 +399,7 @@ void IfExpr::print(std::ostream& os) const {
 
 void IfExpr::pretty_print(std::ostream &os, precedence_t p,
 bool let_needs_parenthesesis, std::streampos &pos) {
-    if (let_needs_parenthesesis) {
+    if (p > prec_none && let_needs_parenthesesis) {
         os << "(";
     }
     int indentation = os.tellp() - pos;
@@ -421,7 +417,7 @@ bool let_needs_parenthesesis, std::streampos &pos) {
     os << std::string(indentation, ' ') << "_else ";
     else_part->pretty_print(os, prec_none, false, pos);
 
-    if (let_needs_parenthesesis) {
+    if (p > prec_none && let_needs_parenthesesis) {
         os << ")";
     }
 }//end of IfExpr pretty print bracket
