@@ -2,6 +2,40 @@
 #include "parse.h"
 #include <stack>
 
+static Expr* parse_expr(std::istream &in) {
+    //creates an expression to represent lhs
+    Expr* lhs = parse_comparg(in);
+    skip_whitespace(in);// skip white spaces
+    int next = in.peek();// peeks next char from input
+    //if + sign then
+    if (next == '=') {
+        consume(in, '=');// consume the sign
+        if (next != '=') {
+            std::cerr << "Error: Expected '==' for equality check!";
+        }
+        consume(in, '=');
+        Expr* rhs = parse_expr(in);//then parse the rhs recursively
+        //return new Add expr from both parsed data (left and right)
+        return new EqExpr(lhs, rhs);
+    } else {
+        return lhs;
+    }
+}
+
+Expr* parse(std::istream &in) {
+    //attempts to parse
+    Expr* expr = parse_expr(in);
+    skip_whitespace(in);// skip white spaces
+
+    //if different that end of input at this point
+    if (in.peek() != EOF) {
+        //throws an error for any non white spaces remaining
+        throw std::runtime_error("Invalid input from Expr* parser");
+    }
+    //returns the ptr to the parsed expression
+    return expr;
+}
+
 //parses a numeric expression
 Expr* parse_num(std::istream &in) {
     int n = 0;
@@ -107,6 +141,7 @@ Expr* parse_addend(std::istream &in) {
         //returns new mult with both left and right based on created expr
         return new Mul(expr, rhs);
     } else
+        //handle "<expr> <expr> error ---"
         return expr;
 }
 
@@ -164,36 +199,6 @@ Expr* parse_multicand(std::istream &in) {
         consume(in, next);
         throw std::runtime_error("Invalid input from multicand parser");
     }
-}
-
-static Expr* parse_expr(std::istream &in) {
-    //creates an expression to represent lhs
-    Expr* expr = parse_addend(in);
-    skip_whitespace(in);// skip white spaces
-    int next = in.peek();// peeks next char from input
-    //if + sign then
-    if (next == '+') {
-        consume(in, '+');// consume the sign
-        Expr* rhs = parse_expr(in);//then parse the rhs recursively
-        //return new Add expr from both parsed data (left and right)
-        return new Add(expr, rhs);
-    } else {
-        return expr;
-    }
-}
-
-Expr* parse(std::istream &in) {
-    //attempts to parse
-    Expr* expr = parse_expr(in);
-    skip_whitespace(in);// skip white spaces
-
-    //if different that end of input at this point
-    // if (in.peek() != EOF) {
-    //     //throws an error for any non white spaces remaining
-    //     throw std::runtime_error("Invalid input from Expr* parser");
-    // }
-    //returns the ptr to the parsed expression
-    return expr;
 }
 
 //helper method to skip white spaces
@@ -284,4 +289,3 @@ std::string parse_keyword(std::istream &in) {
     }
     return keyword;
 }
-
