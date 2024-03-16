@@ -188,10 +188,10 @@ Expr* parse(std::istream &in) {
     skip_whitespace(in);// skip white spaces
 
     //if different that end of input at this point
-    if (in.peek() != EOF) {
-        //throws an error for any non white spaces remaining
-        throw std::runtime_error("Invalid input from Expr* parse");
-    }
+    // if (in.peek() != EOF) {
+    //     //throws an error for any non white spaces remaining
+    //     throw std::runtime_error("Invalid input from Expr* parser");
+    // }
     //returns the ptr to the parsed expression
     return expr;
 }
