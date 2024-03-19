@@ -31,11 +31,6 @@ class Expr {
      */
     virtual bool equals(const Expr* other) const=0;
     /**
-     * \brief Checks if the expression has a variable.
-     * \return True if the expression contains a variable, false otherwise.
-     */
-    virtual bool has_variable() const = 0;
-    /**
      * \brief Substitutes a variable in the expression with another expression.
      * \param st Variable name to be substituted.
      * \param e Expression to substitute for the variable.
@@ -92,11 +87,6 @@ class Num : public Expr {
     static Expr* parseExpr(const std::vector<std::string>& tokens,
     size_t& index);
     /**
-     * \brief Checks if the expression has a variable.
-     * \return False since numeric constants do not have variables.
-     */
-    bool has_variable() const override;
-    /**
      * \brief Substitutes a variable in the expression with another expression.
      * \param st Variable name to be substituted.
      * \param e Expression to substitute for the variable.
@@ -136,11 +126,6 @@ class VarExpr : public Expr {
      */
     bool equals(const Expr* other) const override;
     /**
-     * \brief Checks if the expression has a variable.
-     * \return True since VarExpr is a variable expression.
-     */
-    bool has_variable() const override;
-    /**
      * \brief Gets the name of the variable.
      * \return Name of the variable.
      */
@@ -177,7 +162,6 @@ class Add : public Expr {
     Add(Expr* l, Expr* r);
     Val* interp() const override;
     bool equals(const Expr* other) const override;
-    bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
@@ -197,7 +181,6 @@ class Mul : public Expr {
     Mul(Expr* l, Expr* r);
     Val* interp() const override;
     bool equals(const Expr* other) const override;
-    bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
@@ -217,7 +200,6 @@ class Let : public Expr {
     bool equals(const Expr* other) const override;
     static Expr* parseExpr(const std::vector<std::string>& tokens,
     size_t& index);
-    bool has_variable() const override;
     Expr* subst(std::string st, Expr *e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
@@ -239,7 +221,6 @@ public:
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    bool has_variable() const override;
     ~BoolExpr();
 };//end of BoolExpr bracket
 
@@ -257,7 +238,6 @@ class IfExpr : public Expr {
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    bool has_variable() const override;
     ~IfExpr();
 };//end of class IfExpr bracket
 
@@ -276,8 +256,39 @@ public:
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    bool has_variable() const override;
     ~EqExpr();
 };//end of EqExpr bracket
+
+class FunExpr : public Expr {
+private:
+    std::string formal_arg;
+    Expr* body;
+
+public:
+    FunExpr(std::string arg, Expr* expr);
+    Val* interp() const override;
+    bool equals(const Expr* other) const override;
+    Expr* subst(std::string st, Expr *e) const override;
+    void print(std::ostream& os) const override;
+    void pretty_print(std::ostream &os, precedence_t p,
+    bool let_needs_parenthesesis, std::streampos &pos) override;
+    ~FunExpr();
+};
+
+class CallExpr : public Expr {
+private:
+    Expr* to_be_called;
+    Expr* actual_arg;
+
+public:
+    CallExpr(Expr* function, Expr* arg);
+    Val* interp() const override;
+    bool equals(const Expr* other) const override;
+    Expr* subst(std::string st, Expr *e) const override;
+    void print(std::ostream& os) const override;
+    void pretty_print(std::ostream &os, precedence_t p,
+    bool let_needs_parenthesesis, std::streampos &pos) override;
+    ~CallExpr();
+};
 
 #endif // EXPR_H

@@ -49,9 +49,6 @@ TEST_CASE("Equals method tests") {
     SECTION("bool has_variables and other testing") {
         CHECK( (new Mul(new Num(3), new Num(2)))
         ->interp()->equals(new NumVal(6)));
-        CHECK((new Add(new VarExpr("x"), new Num(1)))->has_variable() == true );
-        CHECK((new Mul(new Num(2), new Num(1)))->has_variable() == false );
-        CHECK((new Mul(new Num(-99), new Num(1)))->has_variable() == false );
     }
     SECTION("Subst method test case") {
         CHECK( (new Add(new VarExpr("x"), new Num(7)))

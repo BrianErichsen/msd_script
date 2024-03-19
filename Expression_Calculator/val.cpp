@@ -1,5 +1,6 @@
 #include "val.h"
 #include "expr.h"
+#include <string>
 
 //Implementation of NumVal class ----
 
@@ -50,6 +51,14 @@ int NumVal::to_int() const {
 bool NumVal::is_true() const {
     throw std::runtime_error("A number cannot be a boolean!");
 }
+
+NumVal::~NumVal() {
+    //NumVal class member is an int // no implementation needed
+}
+
+Val* NumVal::call(Val* actual_arg) const {
+    throw std::runtime_error("No function to call!");
+}
 //end of NumVal class implementation
 
 //Beginning of BoolVal class implementation
@@ -93,4 +102,64 @@ bool BoolVal::is_true() const {
 int BoolVal::to_int() const {
     //booleans are not integers
     throw std::runtime_error("A boolean cannot be a integer!");
+}
+
+BoolVal::~BoolVal() {
+    //BoolVal class member is an boolean // no implementation needed
+}
+
+Val* BoolVal::call(Val* actual_arg) const {
+    throw std::runtime_error("No function to call!");
+}
+//------------ end of BoolVal class implementation              //
+
+//----------- Beginning of FunVal class implementation methods //
+//public constructor
+FunVal::FunVal(std::string arg, Expr* body) {
+    this->formal_arg = arg;
+    this->body = body;
+}
+
+Expr* FunVal::to_expr() const {
+    return new FunExpr(formal_arg, body);
+}
+
+bool FunVal::equals(Val* rhs) const {
+    //checks for pointer of valid CallExpr in type of class from other
+    if (const FunVal* other = dynamic_cast<const FunVal*>(rhs)) {
+        //returns true only equal strings and equal expressions
+        return formal_arg == other->formal_arg &&
+        body->equals(other->body);
+    } //false if different classes - non valid pointer //if reached here
+    return false;
+}
+
+Val* FunVal::add_to(const Val* rsh) const {
+    throw std::runtime_error("Addition of non numbers!");
+}
+
+Val* FunVal::mult_with(const Val* rhs) const {
+    throw std::runtime_error("Multiplication of non numbers!");
+}
+
+std::string FunVal::to_string() const {
+    return to_expr()->to_pretty_string();
+}
+
+bool FunVal::is_true() const {
+    throw std::runtime_error("Function value cannot be evaluated to a boolean!");
+}
+
+Val* FunVal::call(Val* actual_arg) const {
+    //work in this method
+    return body->interp(); //formal_arg, actual_arg //
+}
+//public destructor
+FunVal::~FunVal() {
+    //deallocates body expr resource
+    delete body;
+}
+
+int FunVal::to_int() const {
+    //in blank for now
 }

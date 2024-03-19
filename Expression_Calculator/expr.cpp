@@ -39,10 +39,6 @@ Val* Num::interp() const {
     return new NumVal(value);
 }
 
-bool Num::has_variable() const {
-    //numbers are always not variables
-    return false;
-}
 Expr* Num::subst(std::string st, Expr* e) const {
     //Numbers are always it's own value - nothing more
     return new Num(value);
@@ -75,9 +71,7 @@ bool VarExpr::equals(const Expr* other) const {
 const std::string& VarExpr::getVarName() const {
     return varName;
 }
-bool VarExpr::has_variable() const {
-    return true;
-}
+
 Expr* VarExpr::subst(std::string st, Expr *e) const {
     //compares st variables with e variables
     if (this->varName == st) {
@@ -118,11 +112,6 @@ bool Add::equals(const Expr* other) const {
     return false;
 }
 
-bool Add::has_variable() const {
-    //if lhs expr same is VarExpr or rhs // recursive -- approach
-    return left->has_variable() || right->has_variable();
-}
-
 Expr* Add::subst(std::string st, Expr *e) const {
     //recursive finds nums and variables and assigns to l & r
     return new Add(left->subst(st, e), right->subst(st, e));
@@ -145,7 +134,7 @@ void Add::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
     os << " + ";
     //is it prec_add or prec none here ??
     this->right->pretty_print(os, prec_equal, let_needs_parenthesesis && !print_parent, pos);
-    if (p > prec_add) {
+    if (print_parent) {
         os << ")";
     }
 }
@@ -177,11 +166,6 @@ bool Mul::equals(const Expr* other) const {
         (otherMul->right);
     }
     return false;
-}
-
-bool Mul::has_variable() const {
-    //only returns instances of VarExpressions its lhs and rhs
-    return left->has_variable() || right->has_variable();
 }
 
 Expr* Mul::subst(std::string st, Expr *e) const {
@@ -242,12 +226,6 @@ bool Let::equals(const Expr* other) const {
         && body->equals(other_let->body);
     }
     return false;
-}
-
-bool Let::has_variable() const {
-    //only returns instances of VarExpressions its rhs
-    //
-    return right->has_variable() || body->has_variable();
 }
 
 Expr* Let::subst(std::string st, Expr *e) const {
@@ -343,9 +321,6 @@ void BoolExpr::pretty_print(std::ostream &os, precedence_t p,
         val ? os << "_true" : os << "_false";
 }
 
-bool BoolExpr::has_variable() const {
-    return false;//boolean expr has no variables
-}
 //public destructor
 BoolExpr::~BoolExpr() {
 
@@ -422,10 +397,7 @@ bool let_needs_parenthesesis, std::streampos &pos) {
     }
 }//end of IfExpr pretty print bracket
 
-bool IfExpr::has_variable() const {
-    
-}
-
+//public destructor for IfExpr class
 IfExpr::~IfExpr() {
 
 }
@@ -491,13 +463,112 @@ bool let_needs_parenthesesis, std::streampos &pos) {
         os << ")";
     }
 }//end of pretty print bracket for EqExpr method
-
-bool EqExpr::has_variable() const {
-
-}
-
+//public destructor for EqExpr class
 EqExpr::~EqExpr() {
 
 }
+//-----end of EqExpr class methods implementation
+//-----Beginning of FunExpr class implementation
 
+//public constructor
+FunExpr::FunExpr(std::string arg, Expr* expr) {
+    this->formal_arg = arg;
+    this->body = expr;
+}
 
+bool FunExpr::equals(const Expr* rhs) const {
+    //checks for pointer of valid FunExpr in type of class from other
+    if (const FunExpr* other = dynamic_cast<const FunExpr*>(rhs)) {
+        //returns true only equal strings and equal expressions
+        return formal_arg == other->formal_arg && body->equals(
+            other->body);
+    }
+    //if reached here returns false // other has different class
+    return false;
+}
+
+Val* FunExpr::interp() const {
+    return new FunVal(formal_arg, body);
+}
+
+Expr* FunExpr::subst(std::string st, Expr *e) const {
+    if (formal_arg == st) {
+        return new FunExpr(st, e);
+    }
+    return new FunExpr(formal_arg, body->subst(st, e));
+}
+
+void FunExpr::print(std::ostream& os) const {
+    os << "(_fun (" << formal_arg << ") ";
+    body->print(os);
+    os << ")";
+}
+
+void FunExpr::pretty_print(std::ostream &os, precedence_t p,
+bool let_needs_parenthesesis, std::streampos &pos) {
+    if (let_needs_parenthesesis) {
+        os << "(";
+    }
+
+    int indentation = os.tellp() - pos;
+    os << "_fun (" << formal_arg << ") \n";
+    pos = os.tellp();
+    os << std::string(indentation + 2, ' ');
+    body->pretty_print(os, prec_none, false, pos);
+    if (let_needs_parenthesesis) {
+        os << ")";
+    }
+}
+
+FunExpr::~FunExpr() {
+    delete body;
+}
+
+//end of FunExpr methods implementation
+
+//Beginning of CallExpr methods implementation
+//public constructor
+CallExpr::CallExpr(Expr* function, Expr* arg) {
+    to_be_called = function;
+    actual_arg = arg;
+}
+bool CallExpr::equals(const Expr* rhs) const {
+    //checks for pointer of valid CallExpr in type of class from other
+    if (const CallExpr* other = dynamic_cast<const CallExpr*>(rhs)) {
+        //returns true only equal strings and equal expressions
+        return to_be_called->equals(other->to_be_called) &&
+        actual_arg->equals(other->actual_arg);
+    }
+    //if reached here returns false // other has different class
+    return false;
+}
+
+Val* CallExpr::interp() const {
+    return to_be_called->interp()->call(actual_arg->interp());
+}
+
+Expr* CallExpr::subst(std::string st, Expr *e) const {
+    return new CallExpr(to_be_called->subst(st, e),
+    actual_arg->subst(st, e));
+}
+
+void CallExpr::print(std::ostream& os) const {
+    to_be_called->print(os);
+    os << "(";
+    actual_arg->print(os);
+    os << ")";
+}
+
+void CallExpr::pretty_print(std::ostream &os, precedence_t p,
+bool let_needs_parenthesesis, std::streampos &pos) {
+    to_be_called->pretty_print(os, prec_none, true, pos);
+    os << "(";
+    actual_arg->pretty_print(os, prec_none, false, pos);
+    os << ")";
+}
+
+//public deconstructor
+CallExpr::~CallExpr() {
+    delete to_be_called;
+    delete actual_arg;
+}
