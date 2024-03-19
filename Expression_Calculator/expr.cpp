@@ -323,7 +323,7 @@ void BoolExpr::pretty_print(std::ostream &os, precedence_t p,
 
 //public destructor
 BoolExpr::~BoolExpr() {
-
+    //BoolExpr only has a boolean as a member
 }
 //------------end of BoolExpr methods------------------//
 //                                                     //
@@ -350,6 +350,8 @@ bool IfExpr::equals(const Expr* other) const {
 }
 
 Val* IfExpr::interp() const {
+    //follows the if (condition) then ___ else ___
+    //if test part is true then returns then_part interp else returns else_part
     if (test_part->interp()->is_true()) {
         return then_part->interp();
         //does it need delete for memory leaks?
@@ -358,11 +360,13 @@ Val* IfExpr::interp() const {
 }
     
 Expr* IfExpr::subst(std::string st, Expr *e) const {
+    //recursively calls subst in all 3 expressions within IfExpr
     return (new IfExpr(test_part->subst(st, e), then_part->subst(st, e),
     else_part->subst(st, e)));
 }
 
 void IfExpr::print(std::ostream& os) const {
+    //prints recursively itself around parentheses
     os << "(_if ";
     test_part->print(os);
     os << "_then ";
@@ -374,22 +378,27 @@ void IfExpr::print(std::ostream& os) const {
 
 void IfExpr::pretty_print(std::ostream &os, precedence_t p,
 bool let_needs_parenthesesis, std::streampos &pos) {
+    //using similar context than let expr for either printing
+    //parentheses
     if (p > prec_none && let_needs_parenthesesis) {
         os << "(";
     }
+    //calculates proper indentation bsed on streampos
     int indentation = os.tellp() - pos;
-    os << "_if ";
+    os << "_if ";//prints _if for ifExpr and recursively prints its test_part
     test_part->pretty_print(os, prec_none, false, pos);
     os << "\n";
-
+    //recalculates proper stream position
     pos = os.tellp();
-
+    //prints proper indentation of white spaces followed by _then
     os << std::string(indentation, ' ') << "_then ";
+    //prints recursively the then_part
     then_part->pretty_print(os, prec_none, false, pos);
     os << "\n";
     pos = os.tellp();
-
+    //prints proper indentation of white spaces followed by _else
     os << std::string(indentation, ' ') << "_else ";
+    //prints recursively the else_part
     else_part->pretty_print(os, prec_none, false, pos);
 
     if (p > prec_none && let_needs_parenthesesis) {
@@ -399,7 +408,9 @@ bool let_needs_parenthesesis, std::streampos &pos) {
 
 //public destructor for IfExpr class
 IfExpr::~IfExpr() {
-
+    delete test_part;
+    delete then_part;
+    delete else_part;
 }
 //--end of class IfExpr implementation
 //
@@ -434,15 +445,18 @@ bool EqExpr::equals(const Expr* rhs) const {
 
 Val* EqExpr::interp() const {
     //check if needs to delete to prevent memory leak
+    //returns a boolean comparison result from lhs and rhs
     return new BoolVal(left->interp()->equals(right->interp()));
 }
 
 Expr* EqExpr::subst(std::string st, Expr *e) const {
+    //calls subst recursively from both lhs and rhs
     return new EqExpr(left->subst(st, e), right->subst(st, e));
     //check if needs to delete for memory leak
 }
 
 void EqExpr::print(std::ostream& os) const {
+    //it simply recursively prints itself around parentheses
     os << "(";
     left->print(os);
     os << "==";
@@ -452,12 +466,14 @@ void EqExpr::print(std::ostream& os) const {
 
 void EqExpr::pretty_print(std::ostream &os, precedence_t p,
 bool let_needs_parenthesesis, std::streampos &pos) {
+    //only use parentheses if given precedence is > or equal than prec_equal
     bool print_parent = prec_equal <= p;
     if (print_parent) {
         os << "(";
     }
+    //recursively calls pretty print
     left->pretty_print(os, prec_equal, true, pos);
-    os << " == ";
+    os << " == ";//prints the double == for comparison
     right->pretty_print(os, prec_none, !print_parent && let_needs_parenthesesis, pos);
     if (print_parent) {
         os << ")";
@@ -465,7 +481,8 @@ bool let_needs_parenthesesis, std::streampos &pos) {
 }//end of pretty print bracket for EqExpr method
 //public destructor for EqExpr class
 EqExpr::~EqExpr() {
-
+    delete left;
+    delete right;
 }
 //-----end of EqExpr class methods implementation
 //-----Beginning of FunExpr class implementation
@@ -488,17 +505,21 @@ bool FunExpr::equals(const Expr* rhs) const {
 }
 
 Val* FunExpr::interp() const {
+    //this is kind of redunctant I think
     return new FunVal(formal_arg, body);
 }
 
 Expr* FunExpr::subst(std::string st, Expr *e) const {
+    //if formal_arg is the same as string (var) then returns itself
+    //with given expression
     if (formal_arg == st) {
         return new FunExpr(st, e);
-    }
+    } //else forms a new funExpr where it's body recursively calls subst
     return new FunExpr(formal_arg, body->subst(st, e));
 }
 
 void FunExpr::print(std::ostream& os) const {
+    //it simply recursively prints itself around parentheses
     os << "(_fun (" << formal_arg << ") ";
     body->print(os);
     os << ")";
@@ -506,14 +527,20 @@ void FunExpr::print(std::ostream& os) const {
 
 void FunExpr::pretty_print(std::ostream &os, precedence_t p,
 bool let_needs_parenthesesis, std::streampos &pos) {
+    //using same context as let class for yes or no printing
+    //parentheses around expression
     if (let_needs_parenthesesis) {
         os << "(";
     }
-
+    //calculates the proper indentation to be added afer new line
     int indentation = os.tellp() - pos;
+    //prints fun -> parenthesis -> expr -> parenthesis -> new line
     os << "_fun (" << formal_arg << ") \n";
+    //updates position of stream position
     pos = os.tellp();
+    //prints proper indentation + 2 of white spaces
     os << std::string(indentation + 2, ' ');
+    //prints body's expr recursively
     body->pretty_print(os, prec_none, false, pos);
     if (let_needs_parenthesesis) {
         os << ")";
@@ -544,15 +571,20 @@ bool CallExpr::equals(const Expr* rhs) const {
 }
 
 Val* CallExpr::interp() const {
+    //returns interp called recursively for both expressions
+    //and calling call method ---
     return to_be_called->interp()->call(actual_arg->interp());
 }
 
 Expr* CallExpr::subst(std::string st, Expr *e) const {
+    //returns new call expr where both member's expressions
+    //recursively calls subst
     return new CallExpr(to_be_called->subst(st, e),
     actual_arg->subst(st, e));
 }
 
 void CallExpr::print(std::ostream& os) const {
+    //it simply recursively prints itself around parentheses
     to_be_called->print(os);
     os << "(";
     actual_arg->print(os);
@@ -561,6 +593,7 @@ void CallExpr::print(std::ostream& os) const {
 
 void CallExpr::pretty_print(std::ostream &os, precedence_t p,
 bool let_needs_parenthesesis, std::streampos &pos) {
+    //it simply recursively prints itself around parentheses
     to_be_called->pretty_print(os, prec_none, true, pos);
     os << "(";
     actual_arg->pretty_print(os, prec_none, false, pos);

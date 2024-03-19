@@ -12,7 +12,9 @@ Expr* parse(std::istream &in);
 Expr* parse_var(std::istream &in);
 Expr* parse_let(std::istream &in);
 Expr* parse_if(std::istream &in);
+Expr* parse_fun(std::istream &in);
 Expr* parse_comparg(std::istream &in);
+Expr* parse_inner(std::istream &in);
 static void consumeWord(std::istream &in, std::string word);
 std::string parse_keyword(std::istream &in);
 

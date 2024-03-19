@@ -1,6 +1,7 @@
 #include "val.h"
 #include "expr.h"
 #include <string>
+#include <unordered_map>
 
 //Implementation of NumVal class ----
 
@@ -121,6 +122,7 @@ FunVal::FunVal(std::string arg, Expr* body) {
 }
 
 Expr* FunVal::to_expr() const {
+    //returns the same but in FunExpr
     return new FunExpr(formal_arg, body);
 }
 
@@ -143,6 +145,7 @@ Val* FunVal::mult_with(const Val* rhs) const {
 }
 
 std::string FunVal::to_string() const {
+    //simply returns expr to pretty string
     return to_expr()->to_pretty_string();
 }
 
@@ -151,8 +154,17 @@ bool FunVal::is_true() const {
 }
 
 Val* FunVal::call(Val* actual_arg) const {
-    //work in this method
-    return body->interp(); //formal_arg, actual_arg //
+    // return body->interp(); //formal_arg, actual_arg //
+    // return body->subst(formal_arg, actual_arg->to_expr())->interp();
+    // Create a substitution map where the formal argument is mapped to the actual argument
+    std::unordered_map<std::string, Expr*> substitution_map;
+    substitution_map[formal_arg] = actual_arg->to_expr();
+
+    // Recursively substitute occurrences of the formal argument with the actual argument in the body of the function
+    Expr* substituted_body = body->subst(formal_arg, actual_arg->to_expr());
+
+    // Interpret the resulting expression after substitution
+    return substituted_body->interp();
 }
 //public destructor
 FunVal::~FunVal() {
