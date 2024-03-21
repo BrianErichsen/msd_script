@@ -45,10 +45,6 @@ bool NumVal::equals(Val* rhs) const {
     }
 }
 
-int NumVal::to_int() const {
-    return val;
-}
-
 bool NumVal::is_true() const {
     throw std::runtime_error("A number cannot be a boolean!");
 }
@@ -98,11 +94,6 @@ std::string BoolVal::to_string() const {
 
 bool BoolVal::is_true() const {
     return val;//returns its own boolean result
-}
-
-int BoolVal::to_int() const {
-    //booleans are not integers
-    throw std::runtime_error("A boolean cannot be a integer!");
 }
 
 BoolVal::~BoolVal() {
@@ -169,8 +160,4 @@ Val* FunVal::call(Val* actual_arg) const {
 FunVal::~FunVal() {
     //deallocates body expr resource
     delete body;
-}
-
-int FunVal::to_int() const {
-    //in blank for now
 }

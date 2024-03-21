@@ -35,8 +35,7 @@ int main(int argc, char* argv[]) {
         Expr* expr = parse(std::cin);
         if (type == do_interp) {
             Val* result = expr->interp();
-            int int_result = result->to_int();
-            std::cout << int_result << std::endl;
+            std::cout << result->to_string() << std::endl;
             exit(0);
         }
         else if (type == do_print) {
@@ -51,6 +50,4 @@ int main(int argc, char* argv[]) {
         std::cerr << "Sorry, bad input!" << exit.what() << std::endl;
         return 1;
     }
-
-    return 0;
 }//end of main bracket

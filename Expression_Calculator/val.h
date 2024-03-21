@@ -17,7 +17,6 @@ public:
     virtual std::string to_string() const = 0;
     virtual bool equals(Val* rhs) const = 0;
     virtual bool is_true() const = 0;
-    virtual int to_int() const = 0;
     virtual Val* call(Val* actual_arg) const = 0;
 
     virtual ~Val() {};
@@ -34,7 +33,6 @@ public:
     Val* mult_with(const Val* rhs) const override;
     std::string to_string() const override;
     bool equals(Val* rhs) const override;
-    int to_int() const override;
     bool is_true() const override;
     Val* call(Val* actual_arg) const override;
     ~NumVal();
@@ -51,7 +49,6 @@ public:
     Val* mult_with(const Val* rhs) const override;
     std::string to_string() const override;
     bool equals(Val* rhs) const override;
-    int to_int() const override;
     bool is_true() const override;
     Val* call(Val* actual_arg) const override;
     ~BoolVal();
@@ -69,7 +66,6 @@ public:
     Val* mult_with(const Val* rhs) const override;
     std::string to_string() const override;
     bool equals(Val* rhs) const override;
-    int to_int() const override;
     bool is_true() const override;
     Val* call(Val* actual_arg) const override;
     ~FunVal();

@@ -12,7 +12,7 @@ std::string Expr::to_string() {
 }
 void Expr::pretty_print_at(std::ostream &os) {
     std::streampos startPos = os.tellp();
-    this->pretty_print(os, prec_none, true, startPos);
+    this->pretty_print(os, prec_none, false, startPos);
 }
 //implements pretty print
 std::string Expr::to_pretty_string() {
@@ -208,13 +208,8 @@ Mul::~Mul() {
 Let::Let(std::string l, Expr* r, Expr* body) : left(l), right(r), body(body) {}
 
 Val* Let::interp() const {
-    Val* rhsVal = right->interp();
-    Expr* rightExpr = rhsVal->to_expr();
-    Val* subsBodyVal = body->subst(this->left, rightExpr)->interp();
+    Val* subsBodyVal = body->subst(this->left, this->right)->interp();
     
-    //prevents memory leak
-    delete rhsVal;
-
     return subsBodyVal;
 }
 
@@ -513,7 +508,7 @@ Expr* FunExpr::subst(std::string st, Expr *e) const {
     //if formal_arg is the same as string (var) then returns itself
     //with given expression
     if (formal_arg == st) {
-        return new FunExpr(st, e);
+        return new FunExpr(st, this->body);
     } //else forms a new funExpr where it's body recursively calls subst
     return new FunExpr(formal_arg, body->subst(st, e));
 }

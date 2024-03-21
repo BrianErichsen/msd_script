@@ -426,12 +426,11 @@ TEST_CASE("BoolVal && BoolExpr classes methods") {
     " _in  x + 1) + (_let y = 2\n"
     "                _in  y + 2) == 6");
     delete equal_expr;
-    // IfExpr* if_base = new IfExpr(new BoolExpr(true), new Num(1), new Num(2));
-    // EqExpr* equal_expr1 = new EqExpr(new Num(2), new Add(new Num(3), if_base));
-    //     CHECK(equal_expr1->to_pretty_string() == "2 == 3 + _if _true\n"
-    //     "         _then 1\n"
-    //     "         _else 2");
-    //currently adding extra () after 2 == 3 + (...) // i dont think we need ()
+    IfExpr* if_base = new IfExpr(new BoolExpr(true), new Num(1), new Num(2));
+    EqExpr* equal_expr1 = new EqExpr(new Num(2), new Add(new Num(3), if_base));
+        CHECK(equal_expr1->to_pretty_string() == "2 == 3 + _if _true\n"
+        "         _then 1\n"
+        "         _else 2");
   }
 }
 TEST_CASE("CallExpr and FunExpr") {
@@ -461,8 +460,7 @@ TEST_CASE("CallExpr and FunExpr") {
     new Add(new VarExpr("x"), new Num(-1)))))
     )
     ), new CallExpr(new CallExpr(new VarExpr("factr1"), new VarExpr("factr1")), new Num(10)));
-    // CHECK(fac->interp()->equals(new NumVal(3628800)));
-    //it computes 100 for now -- trying to debug
+    CHECK(fac->interp()->equals(new NumVal(3628800)));
 
     std::string fac1 = "_let factr1 = _fun (factr1) \n"
     "                _fun (x) \n"
