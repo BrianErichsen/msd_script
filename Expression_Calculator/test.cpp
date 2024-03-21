@@ -435,20 +435,33 @@ TEST_CASE("BoolVal && BoolExpr classes methods") {
 }
 TEST_CASE("CallExpr and FunExpr") {
   FunExpr* f1 = new FunExpr("x", new Add(new VarExpr("x"), new Num(1)));
-  FunExpr* f2 = new FunExpr("y", new Add(new VarExpr("y"), new Num(2)));
-  CallExpr* ca1 = new CallExpr(f1, f2);
-
-  // SECTION("Interp, print and pretty print") {
-  //   CHECK(ca1->interp()->equals(new NumVal(3)));
-  //  it says addition of non numbers for now
-  // }
-  SECTION("Parsing CallExpr and FunExpr") {
+  // FunExpr* f2 = new FunExpr("y", new Add(new VarExpr("y"), new Num(2)));
+  Expr* ca1 = new CallExpr(f1, new Num(2));
+  std::string s = "_let fib = _fun (fib)\n"
+                  "             _fun (x)\n"
+                  "               _if x == 0\n"
+                  "               _then 0\n"
+                  "               _else _if x == 1\n"
+                  "                     _then 1\n"
+                  "                     _else fib(fib)(x + -2) + fib(fib)(x + -1)\n"
+                  "_in  fib(fib)(10)";
+  std::string s1 = "(_fun (x) (x+1))(2)";
+  std::string s2 = "(_fun (x) \n"
+                          "   x + 1)(2)";
+  // section gap
+  SECTION("Parsing CallExpr & FunExpr, interp, and equals") {
+    CHECK(ca1->equals(new CallExpr(new FunExpr("x", new Add(new VarExpr("x"),
+    new Num(1))), new Num(2))));
     CHECK(parse_str("_let f = _fun (x) x + 1 _in f(10)")->interp()->
     equals(new NumVal(11)));
     CHECK(parse_str("(_fun (x) x + 1)(24)")->interp()->
     equals(new NumVal(25)));
     CHECK(parse_str("(_fun (x) x * 66)(-1)")->interp()->
     equals(new NumVal(-66)));
+    CHECK(parse_str(s)->interp()->equals(new NumVal(55)));
+    CHECK(ca1->interp()->equals(new NumVal(3)));
+    CHECK(ca1->to_string() == s1);
+    CHECK(ca1->to_pretty_string() == s2);
   }
   SECTION("Factorial example") {
     Expr* fac = new Let("factr1",
