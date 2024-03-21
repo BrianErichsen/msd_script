@@ -237,7 +237,7 @@ Expr* Let::subst(std::string st, Expr *e) const {
     } else {
         Expr* subsBody = this->body->subst(st, e);
         //creates new expr with new input
-        return new Let(st, rhs, subsBody);
+        return new Let(left, rhs, body->subst(st, e));
     }
 }
 

@@ -7,6 +7,7 @@
 #include <sstream>
 #include <limits>
 #include "val.h"
+#include <string>
 
 TEST_CASE("Equals method tests") {
     SECTION("Expr equals") {
@@ -97,8 +98,7 @@ TEST_CASE("Equals method tests") {
         new Add(new VarExpr("y"), new Num(2))), new VarExpr("x")));
         CHECK(test69->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
         CHECK(test69->to_pretty_string() == "_let x = 5\n_in  (_let y = 3\n      _in  y + 2) + x");
-        // CHECK(test69->interp()->equals(new NumVal(10)));
-        //it goes into interp var -- no value for variable!
+        CHECK(test69->interp()->equals(new NumVal(10)));
         Expr* test70 = new Mul(
             new Mul(
                 new Num(2),
@@ -164,13 +164,11 @@ TEST_CASE("Parsing Let Expressions") {
         ("x", new Num(2)) ->equals(new Let("x", new Num(2), new VarExpr("x"))) );
 
         // checks proper interp
-        // CHECK( (new Let("x", new Num(1), new Let("x",
-        // new Num(2), new VarExpr("x")))) ->interp()->equals(new NumVal(2)));
-        //says false for now
+        CHECK( (new Let("x", new Num(1), new Let("x",
+        new Num(2), new VarExpr("x")))) ->interp()->equals(new NumVal(2)));
 
-        // CHECK( (new Let("x", new Num(1), new Add(new Let("x",
-        // new Num(2), new VarExpr("x")), new VarExpr("x")))) ->interp()->equals(new NumVal(3)));
-        //says false for now
+        CHECK( (new Let("x", new Num(1), new Add(new Let("x",
+        new Num(2), new VarExpr("x")), new VarExpr("x")))) ->interp()->equals(new NumVal(3)));
 
         //pretty print testing with nested let expressions
         CHECK( (new Let("x", new Num(5), new Add(new VarExpr("x"), new Let("y",
@@ -209,18 +207,18 @@ TEST_CASE("Parsing Let Expressions") {
     }
 
     // SECTION("Nested Let Expression") {
-    //     std::istringstream input("_let x = 5 _in (_let y = 3 _in (x + y))");
-    //     Expr* result = parse_let(input);
-    //     CHECK(result->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
-    //     //this one says Invalid input from Expr* parser
+        // std::istringstream input("_let x = 5 _in (_let y = 3 _in (x + y))");
+        // Expr* result = parse_let(input);
+        // CHECK(result->to_string() == "(_let x=5 _in ((_let y=3 _in (x+y))+x))");
+        //check this one with TA -- might be wrong the CHECK
     // }
 
-    // SECTION("Let Expression with Addition") {
-    //     std::istringstream input("_let x = 10 _in (_let y = 7 _in (x + y))");
-    //     Expr* result = parse_let(input);
-    //     CHECK(result->to_string() == "(_let x=10 _in (_let y=7 _in (x+y)))");
-        //this one says invalid input from Expr* parser
-    // }
+    SECTION("Let Expression with Addition") {
+        std::istringstream input("_let x = 10 _in (_let y = 7 _in (x + y))");
+        Expr* result = parse_let(input);
+        CHECK(result->to_string() == "(_let x=10 _in (_let y=7 _in (x+y)))");
+        //I might have fixed this one =)
+    }
 }//end of test case
 TEST_CASE("Parse positive number", "[parse_num]") {
   std::istringstream input("123");
@@ -427,7 +425,7 @@ TEST_CASE("BoolVal && BoolExpr classes methods") {
     CHECK(equal_expr->to_pretty_string() == "(_let x = 1\n"
     " _in  x + 1) + (_let y = 2\n"
     "                _in  y + 2) == 6");
-    // delete equal_expr;
+    delete equal_expr;
     // IfExpr* if_base = new IfExpr(new BoolExpr(true), new Num(1), new Num(2));
     // EqExpr* equal_expr1 = new EqExpr(new Num(2), new Add(new Num(3), if_base));
     //     CHECK(equal_expr1->to_pretty_string() == "2 == 3 + _if _true\n"
@@ -440,8 +438,10 @@ TEST_CASE("CallExpr and FunExpr") {
   FunExpr* f1 = new FunExpr("x", new Add(new VarExpr("x"), new Num(1)));
   FunExpr* f2 = new FunExpr("y", new Add(new VarExpr("y"), new Num(2)));
   CallExpr* ca1 = new CallExpr(f1, f2);
+
   // SECTION("Interp, print and pretty print") {
   //   CHECK(ca1->interp()->equals(new NumVal(3)));
+  //  it says addition of non numbers for now
   // }
   SECTION("Parsing CallExpr and FunExpr") {
     CHECK(parse_str("_let f = _fun (x) x + 1 _in f(10)")->interp()->
@@ -450,5 +450,26 @@ TEST_CASE("CallExpr and FunExpr") {
     equals(new NumVal(25)));
     CHECK(parse_str("(_fun (x) x * 66)(-1)")->interp()->
     equals(new NumVal(-66)));
+  }
+  SECTION("Factorial example") {
+    Expr* fac = new Let("factr1",
+    new FunExpr("factr1",
+    new FunExpr("x",
+    new IfExpr(new EqExpr(new VarExpr("x"), new Num(1)),
+    new Num(1), new Mul(new VarExpr("x"),
+    new CallExpr(new CallExpr(new VarExpr("factr1"), new VarExpr("factr1") ),
+    new Add(new VarExpr("x"), new Num(-1)))))
+    )
+    ), new CallExpr(new CallExpr(new VarExpr("factr1"), new VarExpr("factr1")), new Num(10)));
+    // CHECK(fac->interp()->equals(new NumVal(3628800)));
+    //it computes 100 for now -- trying to debug
+
+    std::string fac1 = "_let factr1 = _fun (factr1) \n"
+    "                _fun (x) \n"
+    "                  _if x == 1\n"
+    "                  _then 1\n"
+    "                  _else x * factr1(factr1)(x + -1)\n"
+    "_in  factr1(factr1)(10)";
+    CHECK(fac->to_pretty_string() == fac1);
   }
 }

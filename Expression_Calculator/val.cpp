@@ -154,11 +154,10 @@ bool FunVal::is_true() const {
 }
 
 Val* FunVal::call(Val* actual_arg) const {
-    // return body->interp(); //formal_arg, actual_arg //
-    // return body->subst(formal_arg, actual_arg->to_expr())->interp();
-    // Create a substitution map where the formal argument is mapped to the actual argument
-    std::unordered_map<std::string, Expr*> substitution_map;
-    substitution_map[formal_arg] = actual_arg->to_expr();
+
+    // Substitution map where the formal argument is mapped to the actual argument
+    // std::unordered_map<std::string, Expr*> substitution_map;
+    // substitution_map[formal_arg] = actual_arg->to_expr();
 
     // Recursively substitute occurrences of the formal argument with the actual argument in the body of the function
     Expr* substituted_body = body->subst(formal_arg, actual_arg->to_expr());
