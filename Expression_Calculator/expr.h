@@ -1,7 +1,12 @@
+/*Author: Brian Erichsen Fagundes                            //
+// MSD Script Expression Calculator                          //
+// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+
 #ifndef EXPR_H
 #define EXPR_H
 
 #include <iostream>
+#include "pointer.h"
 /**
  * \brief Enumeration to represent different precedences for pretty printing.
  */
@@ -17,26 +22,26 @@ typedef enum {
 
 class Val;// expr::interp can refer to val*
 
-class Expr {
+CLASS(Expr) {
     public:
     /**
      * \brief Evaluates the expression.
      * \return Result of the expression.
      */
-    virtual Val* interp() const=0;
+    virtual PTR(Val) interp() const=0;
     /**
      * \brief Checks if the expression is equal to another expression.
      * \param other Another expression for comparison.
      * \return True if expressions are equal, false otherwise.
      */
-    virtual bool equals(const Expr* other) const=0;
+    virtual bool equals(const PTR(Expr) other) const=0;
     /**
      * \brief Substitutes a variable in the expression with another expression.
      * \param st Variable name to be substituted.
      * \param e Expression to substitute for the variable.
      * \return New expression after substitution.
      */
-    virtual Expr* subst(std::string st, Expr* e) const=0;
+    virtual PTR(Expr) subst(std::string st, PTR(Expr) e) const=0;
     /**
      * \brief Prints the expression to the output stream.
      * \param os Output stream to print the expression.
@@ -77,22 +82,20 @@ class Num : public Expr {
      * \brief Evaluates the numeric constant expression.
      * \return Numeric value of the expression.
      */
-    Val* interp() const override;
+    PTR(Val) interp() const override;
     /**
      * \brief Checks if the expression is equal to another expression.
      * \param other Another expression for comparison.
      * \return True if expressions are equal, false otherwise.
      */
-    bool equals(const Expr* other) const override;
-    static Expr* parseExpr(const std::vector<std::string>& tokens,
-    size_t& index);
+    bool equals(const PTR(Expr) other) const override;
     /**
      * \brief Substitutes a variable in the expression with another expression.
      * \param st Variable name to be substituted.
      * \param e Expression to substitute for the variable.
      * \return New expression after substitution (which is always the same as the original Num).
      */
-    Expr* subst(std::string st, Expr *e) const override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     /**
      * \brief Prints the numeric constant expression to the output stream.
      * \param os Output stream to print the expression.
@@ -118,13 +121,13 @@ class VarExpr : public Expr {
      * \brief Evaluates the variable expression (throws an error since variables have no fixed value).
      * \return None since variables have no fixed value.
      */
-    Val* interp() const override;
+    PTR(Val) interp() const override;
     /**
      * \brief Checks if the expression is equal to another expression.
      * \param other Another expression for comparison.
      * \return True if expressions are equal, false otherwise.
      */
-    bool equals(const Expr* other) const override;
+    bool equals(const PTR(Expr) other) const override;
     /**
      * \brief Gets the name of the variable.
      * \return Name of the variable.
@@ -136,7 +139,7 @@ class VarExpr : public Expr {
      * \param e Expression to substitute for the variable.
      * \return New expression after substitution.
      */
-    Expr* subst(std::string st, Expr *e) const override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     /**
      * \brief Prints the variable expression to the output stream.
      * \param os Output stream to print the expression.
@@ -154,15 +157,15 @@ class VarExpr : public Expr {
  */
 class Add : public Expr {
     private:
-    Expr* left;///< Left operand of the addition.
-    Expr* right;///< Right operand of the addition.
+    PTR(Expr) left;///< Left operand of the addition.
+    PTR(Expr) right;///< Right operand of the addition.
 
     public:
     //constructor
-    Add(Expr* l, Expr* r);
-    Val* interp() const override;
-    bool equals(const Expr* other) const override;
-    Expr* subst(std::string st, Expr *e) const override;
+    Add(PTR(Expr) l, PTR(Expr) r);
+    PTR(Val) interp() const override;
+    bool equals(const PTR(Expr) other) const override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
     //destructor making sure that the sub expr (left and right)
@@ -174,14 +177,14 @@ class Add : public Expr {
  */
 class Mul : public Expr {
     private:
-    Expr* left;///< Left operand of the multiplication.
-    Expr* right;///< Right operand of the addition.
+    PTR(Expr) left;///< Left operand of the multiplication.
+    PTR(Expr) right;///< Right operand of the addition.
 
     public:
-    Mul(Expr* l, Expr* r);
-    Val* interp() const override;
-    bool equals(const Expr* other) const override;
-    Expr* subst(std::string st, Expr *e) const override;
+    Mul(PTR(Expr) l, PTR(Expr) r);
+    PTR(Val) interp() const override;
+    bool equals(const PTR(Expr) other) const override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
     ~Mul();
@@ -190,17 +193,15 @@ class Mul : public Expr {
 class Let : public Expr {
     private:
     std::string left; //variable name
-    Expr* right;    //binding Expression
-    Expr* body;     //body Expression
+    PTR(Expr) right;    //binding Expression
+    PTR(Expr) body;     //body Expression
     
     public:
     //default constructor
     Let(std::string left, Expr* right, Expr* body);
-    Val* interp() const override;
-    bool equals(const Expr* other) const override;
-    static Expr* parseExpr(const std::vector<std::string>& tokens,
-    size_t& index);
-    Expr* subst(std::string st, Expr *e) const override;
+    PTR(Val) interp() const override;
+    bool equals(const PTR(Expr) other) const override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
     ~Let();
@@ -215,9 +216,9 @@ private:
 
 public:
     BoolExpr(bool v);//public constructor
-    Val* interp() const override;
-    bool equals(const Expr* other) const override;
-    Expr* subst(std::string st, Expr *e) const override;
+    PTR(Val) interp() const override;
+    bool equals(const PTR(Expr) other) const override;
+    Expr* subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
@@ -226,15 +227,15 @@ public:
 
 class IfExpr : public Expr {
     private:
-    Expr* test_part;
-    Expr* then_part;
-    Expr* else_part;
+    PTR(Expr) test_part;
+    PTR(Expr) then_part;
+    PTR(Expr) else_part;
 
     public:
     IfExpr(Expr* test, Expr* then, Expr* else_);
-    Val* interp() const override;
-    bool equals(const Expr* other) const override;
-    Expr* subst(std::string st, Expr *e) const override;
+    PTR(Val) interp() const override;
+    bool equals(const PTR(Expr) other) const override;
+    Expr* subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
@@ -243,16 +244,16 @@ class IfExpr : public Expr {
 
 class EqExpr : public Expr {
 private:
-    Expr* left;
-    Expr* right;
+    PTR(Expr) left;
+    PTR(Expr) right;
 
 public:
-    EqExpr(Expr* left, Expr* right);
+    EqExpr(PTR(Expr) left, PTR(Expr) right);
     EqExpr(int lhs, int rhs);
     EqExpr(std::string lhs, int rhs);
-    Val* interp() const override;
-    bool equals(const Expr* other) const override;
-    Expr* subst(std::string st, Expr *e) const override;
+    PTR(Val) interp() const override;
+    bool equals(const PTR(Expr) other) const override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
@@ -262,13 +263,13 @@ public:
 class FunExpr : public Expr {
 private:
     std::string formal_arg;
-    Expr* body;
+    PTR(Expr) body;
 
 public:
-    FunExpr(std::string arg, Expr* expr);
-    Val* interp() const override;
-    bool equals(const Expr* other) const override;
-    Expr* subst(std::string st, Expr *e) const override;
+    FunExpr(std::string arg, PTR(Expr) expr);
+    PTR(Val) interp() const override;
+    bool equals(const PTR(Expr) other) const override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
@@ -277,14 +278,14 @@ public:
 
 class CallExpr : public Expr {
 private:
-    Expr* to_be_called;
-    Expr* actual_arg;
+    PTR(Expr) to_be_called;
+    PTR(Expr) actual_arg;
 
 public:
-    CallExpr(Expr* function, Expr* arg);
-    Val* interp() const override;
+    CallExpr(PTR(Expr) function, PTR(Expr) arg);
+    PTR(Val) interp() const override;
     bool equals(const Expr* other) const override;
-    Expr* subst(std::string st, Expr *e) const override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;

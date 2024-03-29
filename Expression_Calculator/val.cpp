@@ -1,7 +1,10 @@
+/*Author: Brian Erichsen Fagundes                            //
+// MSD Script Expression Calculator                          //
+// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+
 #include "val.h"
 #include "expr.h"
 #include <string>
-#include <unordered_map>
 
 //Implementation of NumVal class ----
 
@@ -11,7 +14,7 @@ NumVal::NumVal(int v) {
 }
 
 //returns a expression based on NumVal's value
-Expr* NumVal::to_expr() const {
+PTR(Expr) NumVal::to_expr() const {
     return new Num(val);
 }
 

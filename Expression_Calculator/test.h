@@ -1,3 +1,7 @@
+/*Author: Brian Erichsen Fagundes                            //
+// MSD Script Expression Calculator                          //
+// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+
 #ifndef TEST_H
 #define TEST_H
 

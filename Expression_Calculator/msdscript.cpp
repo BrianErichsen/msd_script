@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
             exit(1);
         } else {
             Catch::Session().run(1, argv);
-            "All tests passed!!";
+            std::cout << "All tests passed!!";
             exit(0);
         }
     }

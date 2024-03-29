@@ -6,18 +6,19 @@
 #define VAL_H
 
 #include <string>
+#include "pointer.h"
 
 class Expr;// expr::interp can refer to val*
 
-class Val {
+CLASS(Val) {
 public:
-    virtual Expr* to_expr() const = 0;
-    virtual Val* add_to(const Val* rhs) const = 0;
-    virtual Val* mult_with(const Val* rhs) const = 0;
+    virtual PTR(Expr) to_expr() const = 0;
+    virtual PTR(Val) add_to(const PTR(Val) rhs) const = 0;
+    virtual PTR(Val) mult_with(const PTR(Val) rhs) const = 0;
     virtual std::string to_string() const = 0;
-    virtual bool equals(Val* rhs) const = 0;
+    virtual bool equals(PTR(Val) rhs) const = 0;
     virtual bool is_true() const = 0;
-    virtual Val* call(Val* actual_arg) const = 0;
+    virtual PTR(Val) call(PTR(Val) actual_arg) const = 0;
 
     virtual ~Val() {};
 };//end of class Val bracket
@@ -28,13 +29,13 @@ private:
 
 public:
     NumVal(int v);//public constructor that takes a val as input
-    Expr* to_expr() const override;
-    Val* add_to(const Val* rsh) const override;
-    Val* mult_with(const Val* rhs) const override;
+    PTR(Expr) to_expr() const override;
+    PTR(Val) add_to(const PTR(Val) rsh) const override;
+    PTR(Val) mult_with(const PTR(Val) rhs) const override;
     std::string to_string() const override;
-    bool equals(Val* rhs) const override;
+    bool equals(PTR(Val) rhs) const override;
     bool is_true() const override;
-    Val* call(Val* actual_arg) const override;
+    PTR(Val) call(PTR(Val) actual_arg) const override;
     ~NumVal();
 };//end of class NumVal bracket
 
@@ -44,30 +45,30 @@ private:
     
 public:
     BoolVal(bool v);
-    Expr* to_expr() const override;
-    Val* add_to(const Val* rsh) const override;
-    Val* mult_with(const Val* rhs) const override;
+    PTR(Expr) to_expr() const override;
+    PTR(Val) add_to(const PTR(Val) rsh) const override;
+    PTR(Val) mult_with(const PTR(Val) rhs) const override;
     std::string to_string() const override;
-    bool equals(Val* rhs) const override;
+    bool equals(PTR(Val) rhs) const override;
     bool is_true() const override;
-    Val* call(Val* actual_arg) const override;
+    PTR(Val) call(PTR(Val) actual_arg) const override;
     ~BoolVal();
 };
 
 class FunVal : public Val {
 private:
     std::string formal_arg;
-    Expr* body;
+    PTR(Expr) body;
 
 public:
-    FunVal(std::string arg, Expr* body);
-    Expr* to_expr() const override;
-    Val* add_to(const Val* rsh) const override;
-    Val* mult_with(const Val* rhs) const override;
+    FunVal(std::string arg, PTR(Expr) body);
+    PTR(Expr) to_expr() const override;
+    PTR(Val) add_to(const PTR(Val) rsh) const override;
+    PTR(Val) mult_with(const PTR(Val) rhs) const override;
     std::string to_string() const override;
-    bool equals(Val* rhs) const override;
+    bool equals(PTR(Val) rhs) const override;
     bool is_true() const override;
-    Val* call(Val* actual_arg) const override;
+    PTR(Val) call(PTR(Val) actual_arg) const override;
     ~FunVal();
 };
 

@@ -1,10 +1,11 @@
+/*Author: Brian Erichsen Fagundes                            //
+// MSD Script Expression Calculator                          //
+// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+
 #include <iostream>
 #include <cstdlib>
 #include "expr.h"
 #include "cmdline.h"
-
-//created by Brian Erichsen Fagundes - CS6015 Software Engineering
-//Spring semester
 
 run_mode_t use_arguments(int argc, char* argv[]) {
     bool testFlag = false;

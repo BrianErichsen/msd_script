@@ -1,3 +1,7 @@
+/*Author: Brian Erichsen Fagundes                            //
+// MSD Script Expression Calculator                          //
+// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+
 #include <iostream>
 #include "parse.h"
 #include <stack>
@@ -27,7 +31,9 @@ Expr* parse(std::istream &in) {
     //attempts to parse
     Expr* expr = parse_expr(in);
     skip_whitespace(in);// skip white spaces
-
+    // if (in.peek() != EOF) {
+    //     throw std::runtime_error("bad input");
+    // }
     //returns the ptr to the parsed expression
     return expr;
 }
