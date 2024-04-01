@@ -9,39 +9,39 @@
 
 //Implementation of NumVal class ----
 
-//public constructor that takes a int as a parameter
+//public ructor that takes a int as a parameter
 NumVal::NumVal(int v) {
     val = v;//sets value to input
 }
 
 //returns a expression based on NumVal's value
-PTR(Expr) NumVal::to_expr() const {
+PTR(Expr) NumVal::to_expr()  {
     return NEW(Num) (val);
 }
 
-PTR(Val) NumVal::add_to(const PTR(Val) rhs) const {
-    if (const PTR(NumVal) otherNum = CAST(const NumVal) (rhs)) {
+PTR(Val) NumVal::add_to( PTR(Val) rhs)  {
+    if ( PTR(NumVal) otherNum = CAST( NumVal) (rhs)) {
         return NEW(NumVal) ((unsigned) val + (unsigned) otherNum->val);
     } else {
         throw std::runtime_error("Addition of non-numbers");
     }
 }
 
-PTR(Val) NumVal::mult_with(const PTR(Val) rhs) const {
-    if (const PTR(NumVal) otherNum = CAST(const NumVal) (rhs)) {
+PTR(Val) NumVal::mult_with( PTR(Val) rhs)  {
+    if ( PTR(NumVal) otherNum = CAST( NumVal) (rhs)) {
         return NEW(NumVal) ((unsigned)val * (unsigned)otherNum->val);
     } else {
         throw std::runtime_error("Multiplication of non-numbers");
     }
 }
 
-std::string NumVal::to_string() const {
+std::string NumVal::to_string()  {
     return std::to_string(val);
 }
 
-bool NumVal::equals(PTR(Val) rhs) const {
+bool NumVal::equals(PTR(Val) rhs)  {
     //checks for valid pointer in instance of class - if so
-    if (const PTR(NumVal) otherNum = CAST(const NumVal) (rhs)) {
+    if ( PTR(NumVal) otherNum = CAST( NumVal) (rhs)) {
         //returns this.val == other.val boolean expression
         return val == otherNum->val;
     } else {//false if different classes - non valid pointer
@@ -49,7 +49,7 @@ bool NumVal::equals(PTR(Val) rhs) const {
     }
 }
 
-bool NumVal::is_true() const {
+bool NumVal::is_true()  {
     throw std::runtime_error("A number cannot be a boolean!");
 }
 
@@ -57,7 +57,7 @@ bool NumVal::is_true() const {
 //     //NumVal class member is an int // no implementation needed
 // }
 
-PTR(Val) NumVal::call(PTR(Val) actual_arg) const {
+PTR(Val) NumVal::call(PTR(Val) actual_arg)  {
     throw std::runtime_error("No function to call!");
 }
 //end of NumVal class implementation
@@ -65,39 +65,39 @@ PTR(Val) NumVal::call(PTR(Val) actual_arg) const {
 //Beginning of BoolVal class implementation--------------------------
 //-------------BOOLVAL
 
-//public constructor that takes boolean as an argument
+//public ructor that takes boolean as an argument
 BoolVal::BoolVal(bool v) {
     val = v;
 }
 
-PTR(Expr) BoolVal::to_expr() const {
+PTR(Expr) BoolVal::to_expr()  {
     //returns the equivalent of itself
     return NEW(BoolExpr) (val);
 }
 
-bool BoolVal::equals(PTR(Val) other) const {
-    if (const PTR(BoolVal) otherBool = CAST(const BoolVal) (other)) {
+bool BoolVal::equals(PTR(Val) other)  {
+    if ( PTR(BoolVal) otherBool = CAST( BoolVal) (other)) {
         //returns this.val == other.val boolean expression
         return val == otherBool->val;
     } //false if different classes - non valid pointer //if reached here
     return false;
 }
 
-PTR(Val) BoolVal::add_to(const PTR(Val) rhs) const {
+PTR(Val) BoolVal::add_to( PTR(Val) rhs)  {
     throw std::runtime_error("Addition of non numbers!");
 }
 
-PTR(Val) BoolVal::mult_with(const PTR(Val) rhs) const {
+PTR(Val) BoolVal::mult_with( PTR(Val) rhs)  {
     throw std::runtime_error("Multiplication of non numbers!");
 }
 
-std::string BoolVal::to_string() const {
+std::string BoolVal::to_string()  {
     //no parenthesis for true or false //
     //if val is true then prints true and so forth
     return val ? "_true" : "_false";
 }
 
-bool BoolVal::is_true() const {
+bool BoolVal::is_true()  {
     return val;//returns its own boolean result
 }
 
@@ -105,7 +105,7 @@ bool BoolVal::is_true() const {
 //     //BoolVal class member is an boolean // no implementation needed
 // }
 
-PTR(Val) BoolVal::call(PTR(Val) actual_arg) const {
+PTR(Val) BoolVal::call(PTR(Val) actual_arg)  {
     throw std::runtime_error("No function to call!");
 }
 //------------ end of BoolVal class implementation              //
@@ -113,20 +113,20 @@ PTR(Val) BoolVal::call(PTR(Val) actual_arg) const {
 //----------- Beginning of FunVal class implementation methods //
 //-------------------------FUNVAL------
 
-//public constructor
+//public ructor
 FunVal::FunVal(std::string arg, PTR(Expr) body) {
     formal_arg = arg;
     this->body = body;
 }
 
-PTR(Expr) FunVal::to_expr() const {
+PTR(Expr) FunVal::to_expr()  {
     //returns the same but in FunExpr
     return NEW(FunExpr)(formal_arg, body);
 }
 
-bool FunVal::equals(PTR(Val) rhs) const {
+bool FunVal::equals(PTR(Val) rhs)  {
     //checks for pointer of valid CallExpr in type of class from other
-    if (const PTR(FunVal) other = CAST(const FunVal) (rhs)) {
+    if ( PTR(FunVal) other = CAST( FunVal) (rhs)) {
         //returns true only equal strings and equal expressions
         return formal_arg == other->formal_arg &&
         body->equals(other->body);
@@ -134,24 +134,24 @@ bool FunVal::equals(PTR(Val) rhs) const {
     return false;
 }
 
-PTR(Val) FunVal::add_to(const PTR(Val) rsh) const {
+PTR(Val) FunVal::add_to( PTR(Val) rsh)  {
     throw std::runtime_error("Addition of non numbers!");
 }
 
-PTR(Val) FunVal::mult_with(const PTR(Val) rhs) const {
+PTR(Val) FunVal::mult_with( PTR(Val) rhs)  {
     throw std::runtime_error("Multiplication of non numbers!");
 }
 
-std::string FunVal::to_string() const {
+std::string FunVal::to_string()  {
     //simply returns expr to pretty string
     return to_expr()->to_pretty_string();
 }
 
-bool FunVal::is_true() const {
+bool FunVal::is_true()  {
     throw std::runtime_error("Function value cannot be evaluated to a boolean!");
 }
 
-PTR(Val) FunVal::call(PTR(Val) actual_arg) const {
+PTR(Val) FunVal::call(PTR(Val) actual_arg)  {
     // Recursively substitute occurrences of the formal argument with the actual argument in the body of the function
     PTR(Expr) substituted_body = body->subst(formal_arg, actual_arg->to_expr());
 

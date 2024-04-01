@@ -30,27 +30,27 @@ std::string Expr::to_pretty_string() {
 //Initialization list - member value with arg val
 Num::Num(int val) : value(val) {}
 
-bool Num::equals(const PTR(Expr) other) const {
+bool Num::equals( PTR(Expr) other)  {
     //dynamic cast converts the pointer from other to Num type
     //if successful meaning that class is Num or derived from it means
     //that otherNum will have a valid pointer hence if --then true
-    //const PTR(Num) otherNum = CAST(const Num) (other)
-    if (const PTR(Num) otherNum = CAST(const Num) (other)) {
+    // PTR(Num) otherNum = CAST( Num) (other)
+    if ( PTR(Num) otherNum = CAST( Num) (other)) {
         //if current instace of num val == other val then true
         return value == otherNum->value;
     }
     return false;
 }
-PTR(Val) Num::interp() const {
+PTR(Val) Num::interp()  {
     //just return value from numVal class
     return NEW (NumVal)(value);
 }
 
-PTR(Expr) Num::subst(std::string st, PTR(Expr) e) const {
+PTR(Expr) Num::subst(std::string st, PTR(Expr) e)  {
     //Numbers are always it's own value - nothing more
     return NEW(Num)(value);
 }
-void Num::print(std::ostream& os) const {
+void Num::print(std::ostream& os)  {
     os << value;
 }
 void Num::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) {
@@ -60,25 +60,25 @@ void Num::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthe
 
 
 // Beguinning of VarExpr class implementation
-VarExpr::VarExpr(const std::string& name) : varName(name) {}
+VarExpr::VarExpr( std::string name) : varName(name) {}
 
-PTR(Val) VarExpr::interp() const {
+PTR(Val) VarExpr::interp()  {
     //a var has no fixed value
     throw std::runtime_error("no value for variable");
 }
 
-bool VarExpr::equals(const PTR(Expr) other) const {
-    if (const PTR(VarExpr) otherVarExpr = CAST(const VarExpr) (other)) {
+bool VarExpr::equals( PTR(Expr) other)  {
+    if ( PTR(VarExpr) otherVarExpr = CAST( VarExpr) (other)) {
         return varName == otherVarExpr->varName;
     }
     return false;
 }
 //helper method to access varName data - reference
-const std::string& VarExpr::getVarName() const {
+ std::string& VarExpr::getVarName()  {
     return varName;
 }
 
-PTR(Expr) VarExpr::subst(std::string st, PTR(Expr) e) const {
+PTR(Expr) VarExpr::subst(std::string st, PTR(Expr) e)  {
     //compares st variables with e variables
     if (varName == st) {
         //creates another object that is a clone of e and returns it
@@ -87,7 +87,7 @@ PTR(Expr) VarExpr::subst(std::string st, PTR(Expr) e) const {
     return NEW (VarExpr)(varName);
 }
 
-void VarExpr::print(std::ostream& os) const {
+void VarExpr::print(std::ostream& os)  {
     os << varName;
 }
 void VarExpr::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) {
@@ -97,7 +97,7 @@ void VarExpr::pretty_print(std::ostream& os, precedence_t p, bool let_needs_pare
 // Beginning of Add class
 Add::Add(PTR(Expr) l, PTR(Expr) r) : left(l), right(r) {}
 
-PTR(Val) Add::interp() const {
+PTR(Val) Add::interp()  {
     PTR(Val) leftVal = left->interp();
     PTR(Val) rightVal = right->interp();
 
@@ -110,22 +110,22 @@ PTR(Val) Add::interp() const {
     // return leftVal->add_to(rightVal);
     return result;
 }
-bool Add::equals(const PTR(Expr) other) const {
+bool Add::equals( PTR(Expr) other)  {
     
     //first check for a valid pointer to see if classes match
-    if (const PTR(Add) otherAdd = CAST(const Add) (other)) {
+    if ( PTR(Add) otherAdd = CAST( Add) (other)) {
         //recursively compares other left with current left and same for right
         return left->equals(otherAdd->left) && right->equals(otherAdd->right);
     }
     return false;
 }
 
-PTR(Expr) Add::subst(std::string st, PTR(Expr) e) const {
+PTR(Expr) Add::subst(std::string st, PTR(Expr) e)  {
     //recursive finds nums and variables and assigns to l & r
     return NEW (Add)(left->subst(st, e), right->subst(st, e));
 }
 
-void Add::print(std::ostream& os) const {
+void Add::print(std::ostream& os)  {
     os << "(";
     left->print(os);
     os << "+";
@@ -155,7 +155,7 @@ void Add::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
 //--------------Beginning of Multiplication class implementation
 Mul::Mul(PTR(Expr) l, PTR(Expr) r) : left(l), right(r) {}
 
-PTR(Val) Mul::interp() const {
+PTR(Val) Mul::interp()  {
     PTR(Val) leftVal = left->interp();
     PTR(Val) rightVal = right->interp();
 
@@ -168,21 +168,21 @@ PTR(Val) Mul::interp() const {
     return result;
 }
 
-bool Mul::equals(const PTR(Expr) other) const {
+bool Mul::equals( PTR(Expr) other)  {
     
-    if (const PTR(Mul) otherMul = CAST(const Mul) (other)) {
+    if ( PTR(Mul) otherMul = CAST( Mul) (other)) {
         return left->equals(otherMul->left) && right->equals
         (otherMul->right);
     }
     return false;
 }
 
-PTR(Expr) Mul::subst(std::string st, PTR(Expr) e) const {
+PTR(Expr) Mul::subst(std::string st, PTR(Expr) e)  {
     //recursive finds nums and variables and assigns to l & r
     return NEW (Mul)(left->subst(st, e), right->subst(st, e));
 }
 
-void Mul::print(std::ostream& os) const {
+void Mul::print(std::ostream& os)  {
     os << "(";
     left->print(os);
     os << "*";
@@ -216,16 +216,16 @@ void Mul::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
 //Beginning of _let class implementation ////
 Let::Let(std::string l, PTR(Expr) r, PTR(Expr) body) : left(l), right(r), body(body) {}
 
-PTR(Val) Let::interp() const {
+PTR(Val) Let::interp()  {
     PTR(Val) subsBodyVal = body->subst(this->left, this->right)->interp();
     
     return subsBodyVal;
 }
 
-bool Let::equals(const PTR(Expr) other) const {
+bool Let::equals( PTR(Expr) other)  {
     
     //first check for a valid pointer to see if classes match
-    if (const PTR(Let) other_let = CAST(const Let) (other)) {
+    if ( PTR(Let) other_let = CAST( Let) (other)) {
         //recursively compares other pointers and string left
         return other_let->left == left && right->equals(other_let->right)
         && body->equals(other_let->body);
@@ -233,7 +233,7 @@ bool Let::equals(const PTR(Expr) other) const {
     return false;
 }
 
-PTR(Expr) Let::subst(std::string st, PTR(Expr) e) const {
+PTR(Expr) Let::subst(std::string st, PTR(Expr) e)  {
     //substitute the right first so val of higher val is passed into lower
     PTR(Expr) rhs = right->subst(st, e);
     //if same for st and left(string var) then update expression
@@ -246,7 +246,7 @@ PTR(Expr) Let::subst(std::string st, PTR(Expr) e) const {
     }
 }
 
-void Let::print(std::ostream& os) const {
+void Let::print(std::ostream& os)  {
     os << "(_let " << this->left << "=";
     right->print(os);
     os << " _in ";
@@ -290,14 +290,14 @@ void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
 
 //Beguinning of Bool Expr methods implementation
 
-//public constructor with param boolean v // sets member to that boolean
+//public ructor with param boolean v // sets member to that boolean
 BoolExpr::BoolExpr(bool v) {
     val = v;
 }
 
-bool BoolExpr::equals(const PTR(Expr) rhs) const {
+bool BoolExpr::equals( PTR(Expr) rhs)  {
     //compares pointer with class of rhs // if BoolExpr then
-    if (const PTR(BoolExpr) other_bool = CAST(const BoolExpr) (rhs)) {
+    if ( PTR(BoolExpr) other_bool = CAST( BoolExpr) (rhs)) {
         //returns boolean expression where both have equal val booleans
         return val == other_bool->val;
     }
@@ -305,15 +305,15 @@ bool BoolExpr::equals(const PTR(Expr) rhs) const {
     return false;
 }
 
-PTR(Val) BoolExpr::interp() const {
+PTR(Val) BoolExpr::interp()  {
     return NEW (BoolVal)(val);//returns a bool val expression with same val
 }
 
-PTR(Expr) BoolExpr::subst(std::string st, PTR(Expr) e) const {
+PTR(Expr) BoolExpr::subst(std::string st, PTR(Expr) e)  {
     return NEW (BoolExpr)(val);//returns this // check with TA
 }
 
-void BoolExpr::print(std::ostream& os) const {
+void BoolExpr::print(std::ostream& os)  {
     //no parenthesis for true or false //
     //if val is true then prints true and so forth
     val ? os << "_true" : os << "_false";
@@ -334,17 +334,17 @@ void BoolExpr::pretty_print(std::ostream &os, precedence_t p,
 //                                                     //
 // --- Beginning of IfExpr methods implementation/methods
 
-//public constructor for IfExpr
+//public ructor for IfExpr
 IfExpr::IfExpr(PTR(Expr) test, PTR(Expr) then, PTR(Expr) else_) {
     test_part = test;
     then_part = then;
     else_part = else_;
 }
 
-bool IfExpr::equals(const PTR(Expr) other) const {
+bool IfExpr::equals( PTR(Expr) other)  {
     //checks for pointer of valid IfExpr in type of class from other
     
-    if (const PTR(IfExpr) other_if = CAST(const IfExpr) (other)) {
+    if ( PTR(IfExpr) other_if = CAST( IfExpr) (other)) {
         //returns true only if all 3 Expr are equal and from same class
         return test_part->equals(other_if->test_part) &&
         then_part->equals(other_if->then_part) && else_part->equals(
@@ -355,7 +355,7 @@ bool IfExpr::equals(const PTR(Expr) other) const {
     return false;
 }
 
-PTR(Val) IfExpr::interp() const {
+PTR(Val) IfExpr::interp()  {
     //follows the if (condition) then ___ else ___
     //if test part is true then returns then_part interp else returns else_part
     if (test_part->interp()->is_true()) {
@@ -365,13 +365,13 @@ PTR(Val) IfExpr::interp() const {
     return else_part->interp();
 }
     
-PTR(Expr) IfExpr::subst(std::string st, PTR(Expr) e) const {
+PTR(Expr) IfExpr::subst(std::string st, PTR(Expr) e)  {
     //recursively calls subst in all 3 expressions within IfExpr
     return (NEW (IfExpr)(test_part->subst(st, e), then_part->subst(st, e),
     else_part->subst(st, e)));
 }
 
-void IfExpr::print(std::ostream& os) const {
+void IfExpr::print(std::ostream& os)  {
     //prints recursively itself around parentheses
     os << "(_if ";
     test_part->print(os);
@@ -422,7 +422,7 @@ bool let_needs_parenthesesis, std::streampos &pos) {
 //
 //---Beguinning of class EqExpr implementation
 
-//public constructor that 2 expression as arguments
+//public ructor that 2 expression as arguments
 EqExpr::EqExpr(PTR(Expr) left, PTR(Expr) right) {
     this->right = right;
     this->left = left;
@@ -439,9 +439,9 @@ EqExpr::EqExpr(std::string lhs, int rhs) {
     right = NEW (Num)(rhs);
 }
 
-bool EqExpr::equals(const PTR(Expr) rhs) const {
+bool EqExpr::equals( PTR(Expr) rhs)  {
     //checks for pointer of valid IfExpr in type of class from other
-    if (const PTR(EqExpr) other = CAST(const EqExpr) (rhs)) {
+    if ( PTR(EqExpr) other = CAST( EqExpr) (rhs)) {
         //returns true only if all 3 Expr are equal and from same class
         return right->equals(other->right) && left->equals(other->left);
     }
@@ -449,19 +449,19 @@ bool EqExpr::equals(const PTR(Expr) rhs) const {
     return false;
 }
 
-PTR(Val) EqExpr::interp() const {
+PTR(Val) EqExpr::interp()  {
     //check if needs to delete to prevent memory leak
     //returns a boolean comparison result from lhs and rhs
     return NEW (BoolVal)(left->interp()->equals(right->interp()));
 }
 
-PTR(Expr) EqExpr::subst(std::string st, PTR(Expr) e) const {
+PTR(Expr) EqExpr::subst(std::string st, PTR(Expr) e)  {
     //calls subst recursively from both lhs and rhs
     return NEW (EqExpr)(left->subst(st, e), right->subst(st, e));
     //check if needs to delete for memory leak
 }
 
-void EqExpr::print(std::ostream& os) const {
+void EqExpr::print(std::ostream& os)  {
     //it simply recursively prints itself around parentheses
     os << "(";
     left->print(os);
@@ -493,15 +493,15 @@ bool let_needs_parenthesesis, std::streampos &pos) {
 //-----end of EqExpr class methods implementation
 //-----Beginning of FunExpr class implementation
 
-//public constructor
+//public ructor
 FunExpr::FunExpr(std::string arg, PTR(Expr) expr) {
     formal_arg = arg;
     body = expr;
 }
 
-bool FunExpr::equals(const PTR(Expr) rhs) const {
+bool FunExpr::equals( PTR(Expr) rhs)  {
     //checks for pointer of valid FunExpr in type of class from other
-    if (const PTR(FunExpr) other = CAST(const FunExpr) (rhs)) {
+    if ( PTR(FunExpr) other = CAST( FunExpr) (rhs)) {
         //returns true only equal strings and equal expressions
         return formal_arg == other->formal_arg && body->equals(
             other->body);
@@ -510,21 +510,21 @@ bool FunExpr::equals(const PTR(Expr) rhs) const {
     return false;
 }
 
-PTR(Val) FunExpr::interp() const {
+PTR(Val) FunExpr::interp()  {
     //this is kind of redunctant I think
     return NEW (FunVal)(formal_arg, body);
 }
 
-PTR(Expr) FunExpr::subst(std::string st, PTR(Expr) e) const {
+PTR(Expr) FunExpr::subst(std::string st, PTR(Expr) e)  {
     //if formal_arg is the same as string (var) then returns itself
     //with given expression
     if (formal_arg == st) {
         return NEW (FunExpr)(st, body);
     } //else forms a new funExpr where it's body recursively calls subst
-    return new FunExpr(formal_arg, body->subst(st, e));
+    return NEW (FunExpr)(formal_arg, body->subst(st, e));
 }
 
-void FunExpr::print(std::ostream& os) const {
+void FunExpr::print(std::ostream& os)  {
     //it simply recursively prints itself around parentheses
     os << "(_fun (" << formal_arg << ") ";
     body->print(os);
@@ -560,14 +560,14 @@ bool let_needs_parenthesesis, std::streampos &pos) {
 //end of FunExpr methods implementation
 
 //Beginning of CallExpr methods implementation
-//public constructor
+//public ructor
 CallExpr::CallExpr(PTR(Expr) function, PTR(Expr) arg) {
     to_be_called = function;
     actual_arg = arg;
 }
-bool CallExpr::equals(const PTR(Expr) rhs) const {
+bool CallExpr::equals( PTR(Expr) rhs)  {
     //checks for pointer of valid CallExpr in type of class from other
-    if (const PTR(CallExpr) other = CAST(const CallExpr) (rhs)) {
+    if ( PTR(CallExpr) other = CAST( CallExpr) (rhs)) {
         //returns true only equal strings and equal expressions
         return to_be_called->equals(other->to_be_called) &&
         actual_arg->equals(other->actual_arg);
@@ -576,20 +576,20 @@ bool CallExpr::equals(const PTR(Expr) rhs) const {
     return false;
 }
 
-PTR(Val) CallExpr::interp() const {
+PTR(Val) CallExpr::interp()  {
     //returns interp called recursively for both expressions
     //and calling call method ---
     return to_be_called->interp()->call(actual_arg->interp());
 }
 
-PTR(Expr) CallExpr::subst(std::string st, PTR(Expr) e) const {
+PTR(Expr) CallExpr::subst(std::string st, PTR(Expr) e)  {
     //returns new call expr where both member's expressions
     //recursively calls subst
     return NEW (CallExpr)(to_be_called->subst(st, e),
     actual_arg->subst(st, e));
 }
 
-void CallExpr::print(std::ostream& os) const {
+void CallExpr::print(std::ostream& os)  {
     //it simply recursively prints itself around parentheses
     to_be_called->print(os);
     os << "(";
@@ -606,7 +606,7 @@ bool let_needs_parenthesesis, std::streampos &pos) {
     os << ")";
 }
 
-//public deconstructor
+//public deructor
 // CallExpr::~CallExpr() {
 //     // delete to_be_called;
 //     // delete actual_arg;
