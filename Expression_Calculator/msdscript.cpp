@@ -1,3 +1,7 @@
+/*Author: Brian Erichsen Fagundes                            //
+// MSD Script Expression Calculator                          //
+// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+
 #define CATCH_CONFIG_RUNNER
 #include "cmdline.h"
 #include "catch.h"
@@ -32,9 +36,9 @@ int main(int argc, char* argv[]) {
         exit(0);
     }
     try {
-        Expr* expr = parse(std::cin);
+        PTR(Expr) expr = parse(std::cin);
         if (type == do_interp) {
-            Val* result = expr->interp();
+            PTR(Val) result = expr->interp();
             std::cout << result->to_string() << std::endl;
             exit(0);
         }

@@ -9,6 +9,6 @@
 #include "parse.h"
 #include "catch.h"
 
-Expr* parse_str(const std::string &str);
+PTR(Expr) parse_str(const std::string &str);
 
 #endif //test.h

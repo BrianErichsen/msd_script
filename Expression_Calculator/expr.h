@@ -65,7 +65,7 @@ CLASS(Expr) {
      */
     std::string to_pretty_string();
     //virtual destructor in the base class of a hierarchy
-    virtual ~Expr() {}
+    virtual ~Expr() {};
 };//end of Expr class bracket
 /**
  * \brief Represents a numeric constant expression.
@@ -170,7 +170,7 @@ class Add : public Expr {
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
     //destructor making sure that the sub expr (left and right)
     //are properly deleted
-    ~Add();
+    // ~Add();
 };
 /**
  * \brief Represents an multiplication expression.
@@ -187,7 +187,7 @@ class Mul : public Expr {
     PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
-    ~Mul();
+    // ~Mul();
 };
 //
 class Let : public Expr {
@@ -204,7 +204,7 @@ class Let : public Expr {
     PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
-    ~Let();
+    // ~Let();
 };//end of let class bracket
 
 /**
@@ -218,11 +218,11 @@ public:
     BoolExpr(bool v);//public constructor
     PTR(Val) interp() const override;
     bool equals(const PTR(Expr) other) const override;
-    Expr* subst(std::string st, PTR(Expr) e) const override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    ~BoolExpr();
+    // ~BoolExpr();
 };//end of BoolExpr bracket
 
 class IfExpr : public Expr {
@@ -235,11 +235,11 @@ class IfExpr : public Expr {
     IfExpr(Expr* test, Expr* then, Expr* else_);
     PTR(Val) interp() const override;
     bool equals(const PTR(Expr) other) const override;
-    Expr* subst(std::string st, PTR(Expr) e) const override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    ~IfExpr();
+    // ~IfExpr();
 };//end of class IfExpr bracket
 
 class EqExpr : public Expr {
@@ -257,7 +257,7 @@ public:
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    ~EqExpr();
+    // ~EqExpr();
 };//end of EqExpr bracket
 
 class FunExpr : public Expr {
@@ -273,7 +273,7 @@ public:
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    ~FunExpr();
+    // ~FunExpr();
 };
 
 class CallExpr : public Expr {
@@ -284,12 +284,12 @@ private:
 public:
     CallExpr(PTR(Expr) function, PTR(Expr) arg);
     PTR(Val) interp() const override;
-    bool equals(const Expr* other) const override;
+    bool equals(const PTR(Expr) other) const override;
     PTR(Expr) subst(std::string st, PTR(Expr) e) const override;
     void print(std::ostream& os) const override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    ~CallExpr();
+    // ~CallExpr();
 };
 
 #endif // EXPR_H

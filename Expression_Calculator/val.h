@@ -36,7 +36,7 @@ public:
     bool equals(PTR(Val) rhs) const override;
     bool is_true() const override;
     PTR(Val) call(PTR(Val) actual_arg) const override;
-    ~NumVal();
+    // ~NumVal();
 };//end of class NumVal bracket
 
 class BoolVal : public Val {
@@ -52,7 +52,7 @@ public:
     bool equals(PTR(Val) rhs) const override;
     bool is_true() const override;
     PTR(Val) call(PTR(Val) actual_arg) const override;
-    ~BoolVal();
+    // ~BoolVal();
 };
 
 class FunVal : public Val {
@@ -69,7 +69,7 @@ public:
     bool equals(PTR(Val) rhs) const override;
     bool is_true() const override;
     PTR(Val) call(PTR(Val) actual_arg) const override;
-    ~FunVal();
+    // ~FunVal();
 };
 
 #endif // VAL_H

@@ -4,54 +4,57 @@
 
 #include <stdexcept>
 #include "expr.h"
-#include<string>
+#include <string>
 #include <sstream>
 #include "val.h"
+#include "pointer.h"
+
 
 
 std::string Expr::to_string() {
     std::stringstream st("");
-    this->print(st);
+    print(st);
     return st.str();
 }
 void Expr::pretty_print_at(std::ostream &os) {
     std::streampos startPos = os.tellp();
-    this->pretty_print(os, prec_none, false, startPos);
+    pretty_print(os, prec_none, false, startPos);
 }
 //implements pretty print
 std::string Expr::to_pretty_string() {
     std::stringstream st("");
-    this->pretty_print_at(st);
+    pretty_print_at(st);
     return st.str();
 }
 //--Beginning of Num class implementation
 //Initialization list - member value with arg val
 Num::Num(int val) : value(val) {}
 
-bool Num::equals(const Expr* other) const {
+bool Num::equals(const PTR(Expr) other) const {
     //dynamic cast converts the pointer from other to Num type
     //if successful meaning that class is Num or derived from it means
     //that otherNum will have a valid pointer hence if --then true
-    if (const Num* otherNum = dynamic_cast<const Num*>(other)) {
+    //const PTR(Num) otherNum = CAST(const Num) (other)
+    if (const PTR(Num) otherNum = CAST(const Num) (other)) {
         //if current instace of num val == other val then true
         return value == otherNum->value;
     }
     return false;
 }
-Val* Num::interp() const {
+PTR(Val) Num::interp() const {
     //just return value from numVal class
-    return new NumVal(value);
+    return NEW (NumVal)(value);
 }
 
-Expr* Num::subst(std::string st, Expr* e) const {
+PTR(Expr) Num::subst(std::string st, PTR(Expr) e) const {
     //Numbers are always it's own value - nothing more
-    return new Num(value);
+    return NEW(Num)(value);
 }
 void Num::print(std::ostream& os) const {
     os << value;
 }
 void Num::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) {
-    os << this->value;
+    os << value;
 }
 //---- end of Num class implementation
 
@@ -59,14 +62,13 @@ void Num::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthe
 // Beguinning of VarExpr class implementation
 VarExpr::VarExpr(const std::string& name) : varName(name) {}
 
-Val* VarExpr::interp() const {
+PTR(Val) VarExpr::interp() const {
     //a var has no fixed value
     throw std::runtime_error("no value for variable");
 }
 
-bool VarExpr::equals(const Expr* other) const {
-    if (const VarExpr* otherVarExpr = dynamic_cast
-    <const VarExpr*>(other)) {
+bool VarExpr::equals(const PTR(Expr) other) const {
+    if (const PTR(VarExpr) otherVarExpr = CAST(const VarExpr) (other)) {
         return varName == otherVarExpr->varName;
     }
     return false;
@@ -76,49 +78,51 @@ const std::string& VarExpr::getVarName() const {
     return varName;
 }
 
-Expr* VarExpr::subst(std::string st, Expr *e) const {
+PTR(Expr) VarExpr::subst(std::string st, PTR(Expr) e) const {
     //compares st variables with e variables
-    if (this->varName == st) {
+    if (varName == st) {
         //creates another object that is a clone of e and returns it
         return e;
     }
-    return new VarExpr(varName);
+    return NEW (VarExpr)(varName);
 }
 
 void VarExpr::print(std::ostream& os) const {
     os << varName;
 }
 void VarExpr::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) {
-    os << this->varName;
+    os << varName;
 }
 //-end of VarExpr class implementation
 // Beginning of Add class
-Add::Add(Expr* l, Expr* r) : left(l), right(r) {}
+Add::Add(PTR(Expr) l, PTR(Expr) r) : left(l), right(r) {}
 
-Val* Add::interp() const {
-    Val* leftVal = left->interp();
-    Val* rightVal = right->interp();
+PTR(Val) Add::interp() const {
+    PTR(Val) leftVal = left->interp();
+    PTR(Val) rightVal = right->interp();
 
-    Val* result = leftVal->add_to(rightVal);
+    PTR(Val) result = leftVal->add_to(rightVal);
     
     //prevents memory leak
-    delete leftVal;
-    delete rightVal;
+    // delete leftVal;
+    // delete rightVal;
 
+    // return leftVal->add_to(rightVal);
     return result;
 }
-bool Add::equals(const Expr* other) const {
+bool Add::equals(const PTR(Expr) other) const {
+    
     //first check for a valid pointer to see if classes match
-    if (const Add* otherAdd = dynamic_cast<const Add*>(other)) {
+    if (const PTR(Add) otherAdd = CAST(const Add) (other)) {
         //recursively compares other left with current left and same for right
         return left->equals(otherAdd->left) && right->equals(otherAdd->right);
     }
     return false;
 }
 
-Expr* Add::subst(std::string st, Expr *e) const {
+PTR(Expr) Add::subst(std::string st, PTR(Expr) e) const {
     //recursive finds nums and variables and assigns to l & r
-    return new Add(left->subst(st, e), right->subst(st, e));
+    return NEW (Add)(left->subst(st, e), right->subst(st, e));
 }
 
 void Add::print(std::ostream& os) const {
@@ -142,39 +146,40 @@ void Add::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
         os << ")";
     }
 }
-Add::~Add() {
-    delete left;
-    delete right;
-}
+// Add::~Add() {
+//     // delete left;
+//     // delete right;
+// }
 //-----------------end of Add class implementation
 
 //--------------Beginning of Multiplication class implementation
-Mul::Mul(Expr* l, Expr* r) : left(l), right(r) {}
+Mul::Mul(PTR(Expr) l, PTR(Expr) r) : left(l), right(r) {}
 
-Val* Mul::interp() const {
-    Val* leftVal = left->interp();
-    Val* rightVal = right->interp();
+PTR(Val) Mul::interp() const {
+    PTR(Val) leftVal = left->interp();
+    PTR(Val) rightVal = right->interp();
 
-    Val* result = leftVal->mult_with(rightVal);
+    PTR(Val) result = leftVal->mult_with(rightVal);
 
     //prevents memory leak
-    delete leftVal;
-    delete rightVal;
+    // delete leftVal;
+    // delete rightVal;
 
     return result;
 }
 
-bool Mul::equals(const Expr* other) const {
-    if (const Mul* otherMul = dynamic_cast<const Mul*>(other)) {
+bool Mul::equals(const PTR(Expr) other) const {
+    
+    if (const PTR(Mul) otherMul = CAST(const Mul) (other)) {
         return left->equals(otherMul->left) && right->equals
         (otherMul->right);
     }
     return false;
 }
 
-Expr* Mul::subst(std::string st, Expr *e) const {
+PTR(Expr) Mul::subst(std::string st, PTR(Expr) e) const {
     //recursive finds nums and variables and assigns to l & r
-    return new Mul(left->subst(st, e), right->subst(st, e));
+    return NEW (Mul)(left->subst(st, e), right->subst(st, e));
 }
 
 void Mul::print(std::ostream& os) const {
@@ -195,31 +200,32 @@ void Mul::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
     }
     //left operand printed with higher precedence to ensure nested mult is
     //enclosed
-    this->left->pretty_print(os, static_cast<precedence_t>(prec_mult + 1), true, pos);
+    left->pretty_print(os, static_cast<precedence_t>(prec_mult + 1), true, pos);
     os << " * ";
-    this->right->pretty_print(os, prec_mult, unparethesis && let_needs_parenthesesis, pos);
+    right->pretty_print(os, prec_mult, unparethesis && let_needs_parenthesesis, pos);
     if (p > prec_mult) {
         os << ")";
     }
 }
-Mul::~Mul() {
-    delete left;
-    delete right;
-}
+// Mul::~Mul() {
+//     // delete left;
+//     // delete right;
+// }
 /// end of Mul class implementation ///
 
 //Beginning of _let class implementation ////
-Let::Let(std::string l, Expr* r, Expr* body) : left(l), right(r), body(body) {}
+Let::Let(std::string l, PTR(Expr) r, PTR(Expr) body) : left(l), right(r), body(body) {}
 
-Val* Let::interp() const {
-    Val* subsBodyVal = body->subst(this->left, this->right)->interp();
+PTR(Val) Let::interp() const {
+    PTR(Val) subsBodyVal = body->subst(this->left, this->right)->interp();
     
     return subsBodyVal;
 }
 
-bool Let::equals(const Expr* other) const {
+bool Let::equals(const PTR(Expr) other) const {
+    
     //first check for a valid pointer to see if classes match
-    if (const Let* other_let = dynamic_cast<const Let*>(other)) {
+    if (const PTR(Let) other_let = CAST(const Let) (other)) {
         //recursively compares other pointers and string left
         return other_let->left == left && right->equals(other_let->right)
         && body->equals(other_let->body);
@@ -227,16 +233,16 @@ bool Let::equals(const Expr* other) const {
     return false;
 }
 
-Expr* Let::subst(std::string st, Expr *e) const {
+PTR(Expr) Let::subst(std::string st, PTR(Expr) e) const {
     //substitute the right first so val of higher val is passed into lower
-    Expr* rhs = this->right->subst(st, e);
+    PTR(Expr) rhs = right->subst(st, e);
     //if same for st and left(string var) then update expression
-    if (this->left == st) {
-        return new Let(this->left, rhs, this->body);
+    if (left == st) {
+        return NEW (Let)(this->left, rhs, this->body);
     } else {
-        Expr* subsBody = this->body->subst(st, e);
+        PTR(Expr) subsBody = body->subst(st, e);
         //creates new expr with new input
-        return new Let(left, rhs, body->subst(st, e));
+        return NEW (Let)(left, rhs, body->subst(st, e));
     }
 }
 
@@ -257,9 +263,9 @@ void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
     //calculates the number of spaces needed for indentation
 
     //print _let following by variable and equal sign
-    os << "_let " << this->left << " = ";
+    os << "_let " << left << " = ";
     //pretty print rhs of the expression
-    this->right->pretty_print(os, prec_none, false, pos);
+    right->pretty_print(os, prec_none, false, pos);
     //prints newline
     os << "\n";
     //get the position after the new line char
@@ -268,7 +274,7 @@ void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
     os << std::string(indentation, ' ');
     os << "_in  ";
     //pretty print the body
-    this->body->pretty_print(os, prec_none, false, pos);
+    body->pretty_print(os, prec_none, false, pos);
 
     //checks if parentheses are needed
     if (p > prec_none && let_needs_parenthesesis) {
@@ -276,10 +282,10 @@ void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
     }
 }
 //destructor method for let class
-Let::~Let() {
-    delete right;
-    delete body;
-}
+// Let::~Let() {
+//     // delete right;
+//     // delete body;
+// }
 //end of Let class implementations
 
 //Beguinning of Bool Expr methods implementation
@@ -289,9 +295,9 @@ BoolExpr::BoolExpr(bool v) {
     val = v;
 }
 
-bool BoolExpr::equals(const Expr* rhs) const {
+bool BoolExpr::equals(const PTR(Expr) rhs) const {
     //compares pointer with class of rhs // if BoolExpr then
-    if (const BoolExpr* other_bool = dynamic_cast<const BoolExpr*>(rhs)) {
+    if (const PTR(BoolExpr) other_bool = CAST(const BoolExpr) (rhs)) {
         //returns boolean expression where both have equal val booleans
         return val == other_bool->val;
     }
@@ -299,12 +305,12 @@ bool BoolExpr::equals(const Expr* rhs) const {
     return false;
 }
 
-Val* BoolExpr::interp() const {
-    return new BoolVal(val);//returns a bool val expression with same val
+PTR(Val) BoolExpr::interp() const {
+    return NEW (BoolVal)(val);//returns a bool val expression with same val
 }
 
-Expr* BoolExpr::subst(std::string st, Expr *e) const {
-    return new BoolExpr(val);//returns this // check with TA
+PTR(Expr) BoolExpr::subst(std::string st, PTR(Expr) e) const {
+    return NEW (BoolExpr)(val);//returns this // check with TA
 }
 
 void BoolExpr::print(std::ostream& os) const {
@@ -321,23 +327,24 @@ void BoolExpr::pretty_print(std::ostream &os, precedence_t p,
 }
 
 //public destructor
-BoolExpr::~BoolExpr() {
-    //BoolExpr only has a boolean as a member
-}
+// BoolExpr::~BoolExpr() {
+//     //BoolExpr only has a boolean as a member
+// }
 //------------end of BoolExpr methods------------------//
 //                                                     //
 // --- Beginning of IfExpr methods implementation/methods
 
 //public constructor for IfExpr
-IfExpr::IfExpr(Expr* test, Expr* then, Expr* else_) {
+IfExpr::IfExpr(PTR(Expr) test, PTR(Expr) then, PTR(Expr) else_) {
     test_part = test;
     then_part = then;
     else_part = else_;
 }
 
-bool IfExpr::equals(const Expr* other) const {
+bool IfExpr::equals(const PTR(Expr) other) const {
     //checks for pointer of valid IfExpr in type of class from other
-    if (const IfExpr* other_if = dynamic_cast<const IfExpr*>(other)) {
+    
+    if (const PTR(IfExpr) other_if = CAST(const IfExpr) (other)) {
         //returns true only if all 3 Expr are equal and from same class
         return test_part->equals(other_if->test_part) &&
         then_part->equals(other_if->then_part) && else_part->equals(
@@ -348,7 +355,7 @@ bool IfExpr::equals(const Expr* other) const {
     return false;
 }
 
-Val* IfExpr::interp() const {
+PTR(Val) IfExpr::interp() const {
     //follows the if (condition) then ___ else ___
     //if test part is true then returns then_part interp else returns else_part
     if (test_part->interp()->is_true()) {
@@ -358,9 +365,9 @@ Val* IfExpr::interp() const {
     return else_part->interp();
 }
     
-Expr* IfExpr::subst(std::string st, Expr *e) const {
+PTR(Expr) IfExpr::subst(std::string st, PTR(Expr) e) const {
     //recursively calls subst in all 3 expressions within IfExpr
-    return (new IfExpr(test_part->subst(st, e), then_part->subst(st, e),
+    return (NEW (IfExpr)(test_part->subst(st, e), then_part->subst(st, e),
     else_part->subst(st, e)));
 }
 
@@ -406,35 +413,35 @@ bool let_needs_parenthesesis, std::streampos &pos) {
 }//end of IfExpr pretty print bracket
 
 //public destructor for IfExpr class
-IfExpr::~IfExpr() {
-    delete test_part;
-    delete then_part;
-    delete else_part;
-}
+// IfExpr::~IfExpr() {
+//     // delete test_part;
+//     // delete then_part;
+//     // delete else_part;
+// }
 //--end of class IfExpr implementation
 //
 //---Beguinning of class EqExpr implementation
 
 //public constructor that 2 expression as arguments
-EqExpr::EqExpr(Expr* left, Expr* right) {
+EqExpr::EqExpr(PTR(Expr) left, PTR(Expr) right) {
     this->right = right;
     this->left = left;
 }
 
 //takes int for lhs and int for rhs
 EqExpr::EqExpr(int lhs, int rhs) {
-    left = new Num(lhs);
-    right = new Num(rhs);
+    left = NEW (Num)(lhs);
+    right = NEW (Num)(rhs);
 }
 //takes a string to create new var in the left and an int num expr for rhs
 EqExpr::EqExpr(std::string lhs, int rhs) {
-    left = new VarExpr(lhs);
-    right = new Num(rhs);
+    left = NEW (VarExpr)(lhs);
+    right = NEW (Num)(rhs);
 }
 
-bool EqExpr::equals(const Expr* rhs) const {
+bool EqExpr::equals(const PTR(Expr) rhs) const {
     //checks for pointer of valid IfExpr in type of class from other
-    if (const EqExpr* other = dynamic_cast<const EqExpr*>(rhs)) {
+    if (const PTR(EqExpr) other = CAST(const EqExpr) (rhs)) {
         //returns true only if all 3 Expr are equal and from same class
         return right->equals(other->right) && left->equals(other->left);
     }
@@ -442,15 +449,15 @@ bool EqExpr::equals(const Expr* rhs) const {
     return false;
 }
 
-Val* EqExpr::interp() const {
+PTR(Val) EqExpr::interp() const {
     //check if needs to delete to prevent memory leak
     //returns a boolean comparison result from lhs and rhs
-    return new BoolVal(left->interp()->equals(right->interp()));
+    return NEW (BoolVal)(left->interp()->equals(right->interp()));
 }
 
-Expr* EqExpr::subst(std::string st, Expr *e) const {
+PTR(Expr) EqExpr::subst(std::string st, PTR(Expr) e) const {
     //calls subst recursively from both lhs and rhs
-    return new EqExpr(left->subst(st, e), right->subst(st, e));
+    return NEW (EqExpr)(left->subst(st, e), right->subst(st, e));
     //check if needs to delete for memory leak
 }
 
@@ -479,22 +486,22 @@ bool let_needs_parenthesesis, std::streampos &pos) {
     }
 }//end of pretty print bracket for EqExpr method
 //public destructor for EqExpr class
-EqExpr::~EqExpr() {
-    delete left;
-    delete right;
-}
+// EqExpr::~EqExpr() {
+//     // delete left;
+//     // delete right;
+// }
 //-----end of EqExpr class methods implementation
 //-----Beginning of FunExpr class implementation
 
 //public constructor
-FunExpr::FunExpr(std::string arg, Expr* expr) {
-    this->formal_arg = arg;
-    this->body = expr;
+FunExpr::FunExpr(std::string arg, PTR(Expr) expr) {
+    formal_arg = arg;
+    body = expr;
 }
 
-bool FunExpr::equals(const Expr* rhs) const {
+bool FunExpr::equals(const PTR(Expr) rhs) const {
     //checks for pointer of valid FunExpr in type of class from other
-    if (const FunExpr* other = dynamic_cast<const FunExpr*>(rhs)) {
+    if (const PTR(FunExpr) other = CAST(const FunExpr) (rhs)) {
         //returns true only equal strings and equal expressions
         return formal_arg == other->formal_arg && body->equals(
             other->body);
@@ -503,16 +510,16 @@ bool FunExpr::equals(const Expr* rhs) const {
     return false;
 }
 
-Val* FunExpr::interp() const {
+PTR(Val) FunExpr::interp() const {
     //this is kind of redunctant I think
-    return new FunVal(formal_arg, body);
+    return NEW (FunVal)(formal_arg, body);
 }
 
-Expr* FunExpr::subst(std::string st, Expr *e) const {
+PTR(Expr) FunExpr::subst(std::string st, PTR(Expr) e) const {
     //if formal_arg is the same as string (var) then returns itself
     //with given expression
     if (formal_arg == st) {
-        return new FunExpr(st, this->body);
+        return NEW (FunExpr)(st, body);
     } //else forms a new funExpr where it's body recursively calls subst
     return new FunExpr(formal_arg, body->subst(st, e));
 }
@@ -546,21 +553,21 @@ bool let_needs_parenthesesis, std::streampos &pos) {
     }
 }
 
-FunExpr::~FunExpr() {
-    delete body;
-}
+// FunExpr::~FunExpr() {
+//     // delete body;
+// }
 
 //end of FunExpr methods implementation
 
 //Beginning of CallExpr methods implementation
 //public constructor
-CallExpr::CallExpr(Expr* function, Expr* arg) {
+CallExpr::CallExpr(PTR(Expr) function, PTR(Expr) arg) {
     to_be_called = function;
     actual_arg = arg;
 }
-bool CallExpr::equals(const Expr* rhs) const {
+bool CallExpr::equals(const PTR(Expr) rhs) const {
     //checks for pointer of valid CallExpr in type of class from other
-    if (const CallExpr* other = dynamic_cast<const CallExpr*>(rhs)) {
+    if (const PTR(CallExpr) other = CAST(const CallExpr) (rhs)) {
         //returns true only equal strings and equal expressions
         return to_be_called->equals(other->to_be_called) &&
         actual_arg->equals(other->actual_arg);
@@ -569,16 +576,16 @@ bool CallExpr::equals(const Expr* rhs) const {
     return false;
 }
 
-Val* CallExpr::interp() const {
+PTR(Val) CallExpr::interp() const {
     //returns interp called recursively for both expressions
     //and calling call method ---
     return to_be_called->interp()->call(actual_arg->interp());
 }
 
-Expr* CallExpr::subst(std::string st, Expr *e) const {
+PTR(Expr) CallExpr::subst(std::string st, PTR(Expr) e) const {
     //returns new call expr where both member's expressions
     //recursively calls subst
-    return new CallExpr(to_be_called->subst(st, e),
+    return NEW (CallExpr)(to_be_called->subst(st, e),
     actual_arg->subst(st, e));
 }
 
@@ -600,7 +607,7 @@ bool let_needs_parenthesesis, std::streampos &pos) {
 }
 
 //public deconstructor
-CallExpr::~CallExpr() {
-    delete to_be_called;
-    delete actual_arg;
-}
+// CallExpr::~CallExpr() {
+//     // delete to_be_called;
+//     // delete actual_arg;
+// }

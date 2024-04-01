@@ -13,6 +13,10 @@
 #include "val.h"
 #include <string>
 
+TEST_CASE("do nothing") {
+  std::cout << "test passed!" << std::endl;
+}
+
 TEST_CASE("Equals method tests") {
     SECTION("Expr equals") {
         //VarExpr class
@@ -115,7 +119,7 @@ TEST_CASE("Equals method tests") {
     }//end of test case bracket
 }//end of ...test case
 
-Expr* parse_str(const std::string &str) {
+PTR(Expr) parse_str(const std::string &str) {
     std::istringstream iss(str);
     return parse(iss);
 }
@@ -429,7 +433,7 @@ TEST_CASE("BoolVal && BoolExpr classes methods") {
     CHECK(equal_expr->to_pretty_string() == "(_let x = 1\n"
     " _in  x + 1) + (_let y = 2\n"
     "                _in  y + 2) == 6");
-    delete equal_expr;
+    // delete equal_expr;
     IfExpr* if_base = new IfExpr(new BoolExpr(true), new Num(1), new Num(2));
     EqExpr* equal_expr1 = new EqExpr(new Num(2), new Add(new Num(3), if_base));
         CHECK(equal_expr1->to_pretty_string() == "2 == 3 + _if _true\n"
