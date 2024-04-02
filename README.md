@@ -7,12 +7,12 @@ To run it; choose the following modes:
 --pretty_print for a prettier printed version of expression
 
 Grammar:
-<Expr> = <number> | <boolean> | <expr> == <expr> | <expr> + <expr> |
-<expr> * <expr> | <expr> (<expr>) | <variable> | _let <variable> =
-<expr> _in <expr> | _if <expr> _then <expr> _else <expr> |
-_fun (<variable>) <expr>
+Expr = number | boolean | expr> == expr | expr + expr |
+expr * expr | expr (expr) | variable | _let variable =
+expr _in expr | _if expr _then expr _else expr |
+_fun (variable) expr
 
-Example using a _fun expression:
+Example 1 using a _fun expression:
   _let factrl = _fun (factrl)
                 _fun (x)
                   _if x == 1
@@ -20,10 +20,13 @@ Example using a _fun expression:
                   _else x * factrl(factrl)(x + -1)
 _in  factrl(factrl)(10) --> 3628800;
 
-or a simpler _fun example:
+Example 2 using a _fun expression:
   _let f = _fun (x) x + 1 _in f(10) --> 11;
 
-or (_fun (x) x + 1)(24) --> 25;
+Example 3 using a _fun expression:
+ (_fun (x) x + 1)(24) --> 25;
+
+
 How to run the program?
   Use the make file by typying make msdscript and run the program by ./msdscript [your argument]
 
