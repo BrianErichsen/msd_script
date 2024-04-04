@@ -170,9 +170,6 @@ class Add : public Expr {
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
     void print(std::ostream& os)   override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
-    //destructor making sure that the sub expr (left and right)
-    //are properly deleted
-    // ~Add();
 };
 /**
  * \brief Represents an multiplication expression.
@@ -189,7 +186,6 @@ class Mul : public Expr {
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
     void print(std::ostream& os)   override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
-    // ~Mul();
 };
 //
 class Let : public Expr {
@@ -206,7 +202,6 @@ class Let : public Expr {
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
     void print(std::ostream& os)   override;
     void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
-    // ~Let();
 };//end of let class bracket
 
 /**
@@ -224,7 +219,6 @@ public:
     void print(std::ostream& os)   override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    // ~BoolExpr();
 };//end of BoolExpr bracket
 
 class IfExpr : public Expr {
@@ -241,7 +235,6 @@ class IfExpr : public Expr {
     void print(std::ostream& os)   override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    // ~IfExpr();
 };//end of class IfExpr bracket
 
 class EqExpr : public Expr {
@@ -259,7 +252,6 @@ public:
     void print(std::ostream& os)   override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    // ~EqExpr();
 };//end of EqExpr bracket
 
 class FunExpr : public Expr {
@@ -275,7 +267,6 @@ public:
     void print(std::ostream& os)   override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    // ~FunExpr();
 };
 
 class CallExpr : public Expr {
@@ -291,7 +282,6 @@ public:
     void print(std::ostream& os)   override;
     void pretty_print(std::ostream &os, precedence_t p,
     bool let_needs_parenthesesis, std::streampos &pos) override;
-    // ~CallExpr();
 };
 
 #endif // EXPR_H

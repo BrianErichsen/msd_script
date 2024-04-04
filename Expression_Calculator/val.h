@@ -37,7 +37,6 @@ public:
     bool equals(PTR(Val) rhs)  override;
     bool is_true()  override;
     PTR(Val) call(PTR(Val) actual_arg)  override;
-    // ~NumVal();
 };//end of class NumVal bracket
 
 class BoolVal : public Val {
@@ -53,7 +52,6 @@ public:
     bool equals(PTR(Val) rhs)  override;
     bool is_true()  override;
     PTR(Val) call(PTR(Val) actual_arg)  override;
-    // ~BoolVal();
 };
 
 class FunVal : public Val {
@@ -71,7 +69,6 @@ public:
     bool equals(PTR(Val) rhs)  override;
     bool is_true()  override;
     PTR(Val) call(PTR(Val) actual_arg)  override;
-    // ~FunVal();
 };
 
 #endif // VAL_H

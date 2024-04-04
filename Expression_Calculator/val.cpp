@@ -54,10 +54,6 @@ bool NumVal::is_true()  {
     throw std::runtime_error("A number cannot be a boolean!");
 }
 
-// NumVal::~NumVal() {
-//     //NumVal class member is an int // no implementation needed
-// }
-
 PTR(Val) NumVal::call(PTR(Val) actual_arg)  {
     throw std::runtime_error("No function to call!");
 }
@@ -101,10 +97,6 @@ std::string BoolVal::to_string()  {
 bool BoolVal::is_true()  {
     return val;//returns its own boolean result
 }
-
-// BoolVal::~BoolVal() {
-//     //BoolVal class member is an boolean // no implementation needed
-// }
 
 PTR(Val) BoolVal::call(PTR(Val) actual_arg)  {
     throw std::runtime_error("No function to call!");
@@ -161,8 +153,3 @@ PTR(Val) FunVal::call(PTR(Val) actual_arg)  {
     // return substituted_body->interp();
     return body->interp(NEW (ExtendedEnv)(formal_arg, actual_arg, env));
 }
-//public destructor
-// FunVal::~FunVal() {
-//     //deallocates body expr resource
-//     // delete body;
-// }

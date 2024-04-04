@@ -149,10 +149,6 @@ void Add::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
         os << ")";
     }
 }
-// Add::~Add() {
-//     // delete left;
-//     // delete right;
-// }
 //-----------------end of Add class implementation
 
 //--------------Beginning of Multiplication class implementation
@@ -211,10 +207,6 @@ void Mul::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
         os << ")";
     }
 }
-// Mul::~Mul() {
-//     // delete left;
-//     // delete right;
-// }
 /// end of Mul class implementation ///
 
 //Beginning of _let class implementation ////
@@ -289,11 +281,6 @@ void Let::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
         os << ")";
     }
 }
-//destructor method for let class
-// Let::~Let() {
-//     // delete right;
-//     // delete body;
-// }
 //end of Let class implementations
 
 //Beguinning of Bool Expr methods implementation
@@ -333,11 +320,6 @@ void BoolExpr::pretty_print(std::ostream &os, precedence_t p,
         //if val is true then prints true and so forth
         val ? os << "_true" : os << "_false";
 }
-
-//public destructor
-// BoolExpr::~BoolExpr() {
-//     //BoolExpr only has a boolean as a member
-// }
 //------------end of BoolExpr methods------------------//
 //                                                     //
 // --- Beginning of IfExpr methods implementation/methods
@@ -419,13 +401,6 @@ bool let_needs_parenthesesis, std::streampos &pos) {
         os << ")";
     }
 }//end of IfExpr pretty print bracket
-
-//public destructor for IfExpr class
-// IfExpr::~IfExpr() {
-//     // delete test_part;
-//     // delete then_part;
-//     // delete else_part;
-// }
 //--end of class IfExpr implementation
 //
 //---Beguinning of class EqExpr implementation
@@ -493,11 +468,7 @@ bool let_needs_parenthesesis, std::streampos &pos) {
         os << ")";
     }
 }//end of pretty print bracket for EqExpr method
-//public destructor for EqExpr class
-// EqExpr::~EqExpr() {
-//     // delete left;
-//     // delete right;
-// }
+
 //-----end of EqExpr class methods implementation
 //-----Beginning of FunExpr class implementation
 
@@ -561,10 +532,6 @@ bool let_needs_parenthesesis, std::streampos &pos) {
     }
 }
 
-// FunExpr::~FunExpr() {
-//     // delete body;
-// }
-
 //end of FunExpr methods implementation
 
 //Beginning of CallExpr methods implementation
@@ -613,9 +580,3 @@ bool let_needs_parenthesesis, std::streampos &pos) {
     actual_arg->pretty_print(os, prec_none, false, pos);
     os << ")";
 }
-
-//public deructor
-// CallExpr::~CallExpr() {
-//     // delete to_be_called;
-//     // delete actual_arg;
-// }
