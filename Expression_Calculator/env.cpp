@@ -16,7 +16,7 @@ PTR(Val) EmptyEnv::lookup(std::string find_name) {
 ExtendedEnv::ExtendedEnv(std::string name_, PTR(Val) val_, PTR(Env) rest_) {
     name = name_;
     val = val_;
-    rest = rest;
+    rest = rest_;
 }
 
 //looks for a variable in the current environmnet - if found returns its val

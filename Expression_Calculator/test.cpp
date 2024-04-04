@@ -13,6 +13,7 @@
 #include "val.h"
 #include <string>
 #include "pointer.h"
+#include "env.h"
 
 TEST_CASE("do nothing") {
   std::cout << "test passed!" << std::endl;
@@ -40,7 +41,7 @@ TEST_CASE("Equals method tests") {
         CHECK((NEW (Add)(num1,NEW (Num)(-1)))->equals
         (NEW (Add)(NEW (Num)(2147483647),NEW (Num)(-1)))==true);
         //check for proper value
-        CHECK((NEW (Num)(2))->interp()->equals(NEW (NumVal)(2)));
+        CHECK((NEW (Num)(2))->interp(Env::empty)->equals(NEW (NumVal)(2)));
         //check if the result of the 2 != expressions are correct
         // CHECK((NEW Add(NEW Num(2), NEW Num(3)))->interp() ==
         // (NEW Mul(NEW Num(1), NEW Num(5)))->interp());
@@ -53,12 +54,12 @@ TEST_CASE("Equals method tests") {
         CHECK((NEW (Mul)(NEW (Num)(2),NEW (Num)(3)))->equals
         (NEW (Mul)(NEW (Num)(2),NEW (Num)(3)))==true);
 
-        CHECK_THROWS_WITH( (NEW (VarExpr)("x"))->interp(), "no value for variable" );
+        CHECK_THROWS_WITH( (NEW (VarExpr)("x"))->interp(Env::empty), "Free variable: x" );
     
     }//end of section
     SECTION("bool has_variables and other testing") {
         CHECK( (NEW (Mul)(NEW (Num)(3), NEW (Num)(2)))
-        ->interp()->equals(NEW (NumVal)(6)));
+        ->interp(Env::empty)->equals(NEW (NumVal)(6)));
     }
     SECTION("Subst method test case") {
         CHECK( (NEW (Add)(NEW (VarExpr)("x"), NEW (Num)(7)))
@@ -107,7 +108,7 @@ TEST_CASE("Equals method tests") {
         NEW (Add)(NEW (VarExpr)("y"), NEW (Num)(2))), NEW (VarExpr)("x")));
         CHECK(test69->to_string() == "(_let x=5 _in ((_let y=3 _in (y+2))+x))");
         CHECK(test69->to_pretty_string() == "_let x = 5\n_in  (_let y = 3\n      _in  y + 2) + x");
-        CHECK(test69->interp()->equals(NEW (NumVal)(10)));
+        CHECK(test69->interp(Env::empty)->equals(NEW (NumVal)(10)));
         PTR(Expr) test70 = NEW (Mul)(
             NEW (Mul)(
                 NEW (Num)(2),
@@ -116,7 +117,7 @@ TEST_CASE("Equals method tests") {
             NEW (Num)(3)
         );
         CHECK(test70->to_pretty_string() == "(2 * _let x = 5\n     _in  x + 1) * 3");
-        CHECK(test70->interp()->equals(NEW (NumVal)(36)));
+        CHECK(test70->interp(Env::empty)->equals(NEW (NumVal)(36)));
     }//end of test case bracket
 }//end of ...test case
 
@@ -126,7 +127,7 @@ PTR(Expr) parse_str(const std::string &str) {
 }
 
 static std::string run(std::string s) {
-  return parse_str(s)->interp()->to_string();
+  return parse_str(s)->interp(Env::empty)->to_string();
 }
 //beginning of NEW test case
 TEST_CASE("parse") {
@@ -174,10 +175,10 @@ TEST_CASE("Parsing Let Expressions") {
 
         // checks proper interp
         CHECK( (NEW (Let)("x", NEW (Num)(1), NEW (Let)("x",
-        NEW (Num)(2), NEW (VarExpr)("x")))) ->interp()->equals(NEW (NumVal)(2)));
+        NEW (Num)(2), NEW (VarExpr)("x")))) ->interp(Env::empty)->equals(NEW (NumVal)(2)));
 
         CHECK( (NEW (Let)("x", NEW (Num)(1), NEW (Add)(NEW (Let)("x",
-        NEW (Num)(2), NEW (VarExpr)("x")), NEW (VarExpr)("x")))) ->interp()->equals(NEW (NumVal)(3)));
+        NEW (Num)(2), NEW (VarExpr)("x")), NEW (VarExpr)("x")))) ->interp(Env::empty)->equals(NEW (NumVal)(3)));
 
         //pretty print testing with nested let expressions
         CHECK( (NEW (Let)("x", NEW (Num)(5), NEW (Add)(NEW (VarExpr)("x"), NEW (Let)("y",
@@ -234,14 +235,14 @@ TEST_CASE("Parse positive number", "[parse_num]") {
   PTR(Expr) result = parse_num(input);
   REQUIRE(result != nullptr);
   REQUIRE(CAST(Num)(result) != nullptr);
-  REQUIRE(result->interp()->equals(NEW (NumVal)(123)));
+  REQUIRE(result->interp(Env::empty)->equals(NEW (NumVal)(123)));
 }
 TEST_CASE("Parse negative number", "[parse_num]") {
   std::istringstream input("-456");
   PTR(Expr) result = parse_num(input);
   REQUIRE(result != nullptr);
   REQUIRE(CAST(Num)(result) != nullptr);
-  REQUIRE(result->interp()->equals(NEW (NumVal)(-456)));
+  REQUIRE(result->interp(Env::empty)->equals(NEW (NumVal)(-456)));
 }
 TEST_CASE("Invalid input with negative sign only", "[parse_num]") {
   std::istringstream input("-");
@@ -361,11 +362,11 @@ CHECK_FALSE(numVal1->equals(different));
 
 //tests to_string method
 CHECK(numVal1->to_string() == "33");
-CHECK(parse_str("1 + 2")->interp()->equals(NEW (NumVal)(3)));
-CHECK(parse_str("1 + 2")->interp()->to_string() == "3");
+CHECK(parse_str("1 + 2")->interp(Env::empty)->equals(NEW (NumVal)(3)));
+CHECK(parse_str("1 + 2")->interp(Env::empty)->to_string() == "3");
 
 //mult class expr
-CHECK((NEW (Add)(NEW (Num)(1), NEW (Num)(2)))->interp()->equals(NEW (NumVal)(3)));
+CHECK((NEW (Add)(NEW (Num)(1), NEW (Num)(2)))->interp(Env::empty)->equals(NEW (NumVal)(3)));
 }
 TEST_CASE("BoolVal && BoolExpr classes methods") {
   SECTION("BoolExpr class") {
@@ -395,17 +396,17 @@ TEST_CASE("BoolVal && BoolExpr classes methods") {
     //it was passing tests before switching to new pointers
   }
   SECTION("EqExpr, BoolVal methods") {
-    CHECK((NEW (EqExpr)(NEW (Num)(1), NEW (Num)(2)))->interp()->
+    CHECK((NEW (EqExpr)(NEW (Num)(1), NEW (Num)(2)))->interp(Env::empty)->
     equals(NEW (BoolVal)(false)));
-    CHECK((NEW (EqExpr)(NEW (Num)(1), NEW (Num)(1)))->interp()->
+    CHECK((NEW (EqExpr)(NEW (Num)(1), NEW (Num)(1)))->interp(Env::empty)->
     equals(NEW (BoolVal)(true)));
     PTR(Expr) testExpr = NEW (EqExpr)(NEW (Add)(NEW (Num)(1), NEW (Num)(1)), NEW (Add)(NEW (Num)(2), NEW (Num)(0)));
-    PTR(Val) result = testExpr->interp();
+    PTR(Val) result = testExpr->interp(Env::empty);
     CHECK((result)->to_string() == "_true");
 
     CHECK( (NEW (Let)("x", NEW (Add)(NEW (Num)(1), NEW (Num)(4)),
             NEW (Mul)(NEW (VarExpr)("x"), NEW (VarExpr)("x"))))
-            ->interp()
+            ->interp(Env::empty)
             ->equals(NEW (NumVal)(25)));
 
     //Parsers BoolExpr
@@ -418,14 +419,14 @@ TEST_CASE("BoolVal && BoolExpr classes methods") {
     CHECK(parse_str(("_if _false _then 66 _else 1"))->equals(
       NEW (IfExpr)(NEW (BoolExpr)(false), NEW (Num)(66), NEW (Num)(1))
     ));
-    CHECK(parse_str("1 == 2")->interp()->equals(NEW (BoolVal)(false)));
-    CHECK(parse_str("5 == 88")->interp()->equals(NEW (BoolVal)(false)));
-    CHECK(parse_str("5 == 5")->interp()->equals(NEW (BoolVal)(true)));
-    CHECK(parse_str("1 == 2")->interp()->to_string() == "_false");
+    CHECK(parse_str("1 == 2")->interp(Env::empty)->equals(NEW (BoolVal)(false)));
+    CHECK(parse_str("5 == 88")->interp(Env::empty)->equals(NEW (BoolVal)(false)));
+    CHECK(parse_str("5 == 5")->interp(Env::empty)->equals(NEW (BoolVal)(true)));
+    CHECK(parse_str("1 == 2")->interp(Env::empty)->to_string() == "_false");
     CHECK(run("53 == -4") == "_false");
     CHECK(run("5 == 5") == "_true");
-    CHECK((((parse_str("_if 1 == 2 _then 5 _else 6"))->interp())->to_string()) == "6");
-    CHECK((parse_str("1 + 2 == 3 + 0"))->interp()->to_string() == "_true");
+    CHECK((((parse_str("_if 1 == 2 _then 5 _else 6"))->interp(Env::empty))->to_string()) == "6");
+    CHECK((parse_str("1 + 2 == 3 + 0"))->interp(Env::empty)->to_string() == "_true");
   }
   SECTION("Pretty print for EqExpr") {
     PTR(Expr) expr1 = NEW (Add)(NEW (Let)("x", NEW (Num)(1), NEW (Add)(NEW (VarExpr)("x"), NEW (Num)(1))),
@@ -462,14 +463,14 @@ TEST_CASE("CallExpr and FunExpr") {
   SECTION("Parsing CallExpr & FunExpr, interp, and equals") {
     CHECK(ca1->equals(NEW (CallExpr)(NEW (FunExpr)("x", NEW (Add)(NEW (VarExpr)("x"),
     NEW (Num)(1))), NEW (Num)(2))));
-    CHECK(parse_str("_let f = _fun (x) x + 1 _in f(10)")->interp()->
+    CHECK(parse_str("_let f = _fun (x) x + 1 _in f(10)")->interp(Env::empty)->
     equals(NEW (NumVal)(11)));
-    CHECK(parse_str("(_fun (x) x + 1)(24)")->interp()->
+    CHECK(parse_str("(_fun (x) x + 1)(24)")->interp(Env::empty)->
     equals(NEW (NumVal)(25)));
-    CHECK(parse_str("(_fun (x) x * 66)(-1)")->interp()->
+    CHECK(parse_str("(_fun (x) x * 66)(-1)")->interp(Env::empty)->
     equals(NEW (NumVal)(-66)));
-    CHECK(parse_str(s)->interp()->equals(NEW (NumVal)(55)));
-    CHECK(ca1->interp()->equals(NEW (NumVal)(3)));
+    CHECK(parse_str(s)->interp(Env::empty)->equals(NEW (NumVal)(55)));
+    CHECK(ca1->interp(Env::empty)->equals(NEW (NumVal)(3)));
     CHECK(ca1->to_string() == s1);
     CHECK(ca1->to_pretty_string() == s2);
   }
@@ -483,7 +484,7 @@ TEST_CASE("CallExpr and FunExpr") {
     NEW (Add)(NEW (VarExpr)("x"), NEW (Num)(-1)))))
     )
     ), NEW (CallExpr)(NEW (CallExpr)(NEW (VarExpr)("factr1"), NEW (VarExpr)("factr1")), NEW (Num)(10)));
-    CHECK(fac->interp()->equals(NEW (NumVal)(3628800)));
+    CHECK(fac->interp(Env::empty)->equals(NEW (NumVal)(3628800)));
 
     std::string fac1 = "_let factr1 = _fun (factr1) \n"
     "                _fun (x) \n"

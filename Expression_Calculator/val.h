@@ -9,6 +9,7 @@
 #include "pointer.h"
 
 class Expr;// expr::interp can refer to val*
+class Env;
 
 CLASS(Val) {
 public:
@@ -59,9 +60,10 @@ class FunVal : public Val {
 private:
     std::string formal_arg;
     PTR(Expr) body;
+    PTR(Env) env;
 
 public:
-    FunVal(std::string arg, PTR(Expr) body);
+    FunVal(std::string arg, PTR(Expr) body_, PTR(Env) env_);
     PTR(Expr) to_expr()  override;
     PTR(Val) add_to( PTR(Val) rsh)  override;
     PTR(Val) mult_with( PTR(Val) rhs)  override;

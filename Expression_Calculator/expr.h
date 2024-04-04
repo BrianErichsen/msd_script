@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include "pointer.h"
+
 /**
  * \brief Enumeration to represent different precedences for pretty printing.
  */
@@ -20,7 +21,8 @@ typedef enum {
  * \brief Base class for representing expressions.
  */
 
-class Val;// expr::interp can refer to val*
+class Val;// expr::interp PTR(Env) envcan refer to val*
+class Env;
 
 CLASS(Expr) {
     public:
@@ -28,7 +30,7 @@ CLASS(Expr) {
      * \brief Evaluates the expression.
      * \return Result of the expression.
      */
-    virtual PTR(Val) interp() = 0;
+    virtual PTR(Val) interp(PTR(Env) env) = 0;
     /**
      * \brief Checks if the expression is equal to another expression.
      * \param other Another expression for comparison.
@@ -82,7 +84,7 @@ class Num : public Expr {
      * \brief Evaluates the numeric a nt expression.
      * \return Numeric value of the expression.
      */
-    PTR(Val) interp()   override;
+    PTR(Val) interp(PTR(Env) env)   override;
     /**
      * \brief Checks if the expression is equal to another expression.
      * \param other Another expression for comparison.
@@ -121,7 +123,7 @@ class VarExpr : public Expr {
      * \brief Evaluates the variable expression (throws an error since variables have no fixed value).
      * \return None since variables have no fixed value.
      */
-    PTR(Val) interp()   override;
+    PTR(Val) interp(PTR(Env) env)   override;
     /**
      * \brief Checks if the expression is equal to another expression.
      * \param other Another expression for comparison.
@@ -163,7 +165,7 @@ class Add : public Expr {
     public:
     //r uctor
     Add(PTR(Expr) l, PTR(Expr) r);
-    PTR(Val) interp()   override;
+    PTR(Val) interp(PTR(Env) env)   override;
     bool equals(  PTR(Expr) other)   override;
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
     void print(std::ostream& os)   override;
@@ -182,7 +184,7 @@ class Mul : public Expr {
 
     public:
     Mul(PTR(Expr) l, PTR(Expr) r);
-    PTR(Val) interp()   override;
+    PTR(Val) interp(PTR(Env) env)   override;
     bool equals(  PTR(Expr) other)   override;
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
     void print(std::ostream& os)   override;
@@ -199,7 +201,7 @@ class Let : public Expr {
     public:
     //default r uctor
     Let(std::string left, PTR(Expr) right, PTR(Expr) body);
-    PTR(Val) interp()   override;
+    PTR(Val) interp(PTR(Env) env)   override;
     bool equals(  PTR(Expr) other)   override;
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
     void print(std::ostream& os)   override;
@@ -216,7 +218,7 @@ private:
 
 public:
     BoolExpr(bool v);//public r uctor
-    PTR(Val) interp()   override;
+    PTR(Val) interp(PTR(Env) env)   override;
     bool equals(  PTR(Expr) other)   override;
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
     void print(std::ostream& os)   override;
@@ -233,7 +235,7 @@ class IfExpr : public Expr {
 
     public:
     IfExpr(PTR(Expr) test, PTR(Expr) then, PTR(Expr) else_);
-    PTR(Val) interp()   override;
+    PTR(Val) interp(PTR(Env) env)   override;
     bool equals(  PTR(Expr) other)   override;
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
     void print(std::ostream& os)   override;
@@ -251,7 +253,7 @@ public:
     EqExpr(PTR(Expr) left, PTR(Expr) right);
     EqExpr(int lhs, int rhs);
     EqExpr(std::string lhs, int rhs);
-    PTR(Val) interp()   override;
+    PTR(Val) interp(PTR(Env) env)   override;
     bool equals(  PTR(Expr) other)   override;
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
     void print(std::ostream& os)   override;
@@ -267,7 +269,7 @@ private:
 
 public:
     FunExpr(std::string arg, PTR(Expr) expr);
-    PTR(Val) interp()   override;
+    PTR(Val) interp(PTR(Env) env)   override;
     bool equals(  PTR(Expr) other)   override;
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
     void print(std::ostream& os)   override;
@@ -283,7 +285,7 @@ private:
 
 public:
     CallExpr(PTR(Expr) function, PTR(Expr) arg);
-    PTR(Val) interp()   override;
+    PTR(Val) interp(PTR(Env) env)   override;
     bool equals(  PTR(Expr) other)   override;
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
     void print(std::ostream& os)   override;

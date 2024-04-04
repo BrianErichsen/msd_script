@@ -9,6 +9,7 @@
 #include "expr.h"
 #include "parse.h"
 #include "val.h"
+#include "env.h"
 
 
 /**
@@ -38,7 +39,7 @@ int main(int argc, char* argv[]) {
     try {
         PTR(Expr) expr = parse(std::cin);
         if (type == do_interp) {
-            PTR(Val) result = expr->interp();
+            PTR(Val) result = expr->interp(Env::empty);
             std::cout << result->to_string() << std::endl;
             exit(0);
         }

@@ -5,6 +5,7 @@
 #include "val.h"
 #include "expr.h"
 #include <string>
+#include "env.h"
 
 
 //Implementation of NumVal class ----
@@ -114,9 +115,10 @@ PTR(Val) BoolVal::call(PTR(Val) actual_arg)  {
 //-------------------------FUNVAL------
 
 //public ructor
-FunVal::FunVal(std::string arg, PTR(Expr) body) {
+FunVal::FunVal(std::string arg, PTR(Expr) body_, PTR(Env) env_) {
     formal_arg = arg;
-    this->body = body;
+    this->body = body_;
+    env = env_;
 }
 
 PTR(Expr) FunVal::to_expr()  {
@@ -153,10 +155,11 @@ bool FunVal::is_true()  {
 
 PTR(Val) FunVal::call(PTR(Val) actual_arg)  {
     // Recursively substitute occurrences of the formal argument with the actual argument in the body of the function
-    PTR(Expr) substituted_body = body->subst(formal_arg, actual_arg->to_expr());
+    // PTR(Expr) substituted_body = body->subst(formal_arg, actual_arg->to_expr());
 
     // Interpret the resulting expression after substitution
-    return substituted_body->interp();
+    // return substituted_body->interp();
+    return body->interp(NEW (ExtendedEnv)(formal_arg, actual_arg, env));
 }
 //public destructor
 // FunVal::~FunVal() {

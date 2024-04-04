@@ -8,6 +8,7 @@
 #include <sstream>
 #include "val.h"
 #include "pointer.h"
+#include "env.h"
 
 
 
@@ -41,7 +42,7 @@ bool Num::equals( PTR(Expr) other)  {
     }
     return false;
 }
-PTR(Val) Num::interp()  {
+PTR(Val) Num::interp(PTR(Env) env)  {
     //just return value from numVal class
     return NEW (NumVal)(value);
 }
@@ -62,9 +63,10 @@ void Num::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthe
 // Beguinning of VarExpr class implementation
 VarExpr::VarExpr( std::string name) : varName(name) {}
 
-PTR(Val) VarExpr::interp()  {
+PTR(Val) VarExpr::interp(PTR(Env) env)  {
     //a var has no fixed value
-    throw std::runtime_error("no value for variable");
+    // throw std::runtime_error("no value for variable");
+    return env->lookup(varName);
 }
 
 bool VarExpr::equals( PTR(Expr) other)  {
@@ -97,18 +99,19 @@ void VarExpr::pretty_print(std::ostream& os, precedence_t p, bool let_needs_pare
 // Beginning of Add class
 Add::Add(PTR(Expr) l, PTR(Expr) r) : left(l), right(r) {}
 
-PTR(Val) Add::interp()  {
-    PTR(Val) leftVal = left->interp();
-    PTR(Val) rightVal = right->interp();
+PTR(Val) Add::interp(PTR(Env) env)  {
+    // PTR(Val) leftVal = left->interp(PTR(Env) env);
+    // PTR(Val) rightVal = right->interp(PTR(Env) env);
 
-    PTR(Val) result = leftVal->add_to(rightVal);
+    // PTR(Val) result = leftVal->add_to(rightVal);
     
     //prevents memory leak
     // delete leftVal;
     // delete rightVal;
 
     // return leftVal->add_to(rightVal);
-    return result;
+    // return result;
+    return left->interp(env)->add_to(right->interp(env));
 }
 bool Add::equals( PTR(Expr) other)  {
     
@@ -155,17 +158,18 @@ void Add::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
 //--------------Beginning of Multiplication class implementation
 Mul::Mul(PTR(Expr) l, PTR(Expr) r) : left(l), right(r) {}
 
-PTR(Val) Mul::interp()  {
-    PTR(Val) leftVal = left->interp();
-    PTR(Val) rightVal = right->interp();
+PTR(Val) Mul::interp(PTR(Env) env)  {
+    // PTR(Val) leftVal = left->interp(PTR(Env) env);
+    // PTR(Val) rightVal = right->interp(PTR(Env) env);
 
-    PTR(Val) result = leftVal->mult_with(rightVal);
+    // PTR(Val) result = leftVal->mult_with(rightVal);
 
     //prevents memory leak
     // delete leftVal;
     // delete rightVal;
 
-    return result;
+    // return result;
+    return left->interp(env)->mult_with(right->interp(env));
 }
 
 bool Mul::equals( PTR(Expr) other)  {
@@ -216,10 +220,14 @@ void Mul::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthe
 //Beginning of _let class implementation ////
 Let::Let(std::string l, PTR(Expr) r, PTR(Expr) body) : left(l), right(r), body(body) {}
 
-PTR(Val) Let::interp()  {
-    PTR(Val) subsBodyVal = body->subst(this->left, this->right)->interp();
+PTR(Val) Let::interp(PTR(Env) env)  {
+    // PTR(Val) subsBodyVal = body->subst(this->left, this->right)->interp(PTR(Env) env);
     
-    return subsBodyVal;
+    // return subsBodyVal;
+    PTR(Val) right_ = right->interp(env);
+    PTR(Env) new_env = NEW(ExtendedEnv)(left, right_, env);
+
+    return body->interp(new_env);
 }
 
 bool Let::equals( PTR(Expr) other)  {
@@ -305,7 +313,7 @@ bool BoolExpr::equals( PTR(Expr) rhs)  {
     return false;
 }
 
-PTR(Val) BoolExpr::interp()  {
+PTR(Val) BoolExpr::interp(PTR(Env) env)  {
     return NEW (BoolVal)(val);//returns a bool val expression with same val
 }
 
@@ -355,14 +363,14 @@ bool IfExpr::equals( PTR(Expr) other)  {
     return false;
 }
 
-PTR(Val) IfExpr::interp()  {
+PTR(Val) IfExpr::interp(PTR(Env) env)  {
     //follows the if (condition) then ___ else ___
-    //if test part is true then returns then_part interp else returns else_part
-    if (test_part->interp()->is_true()) {
-        return then_part->interp();
+    //if test part is true then returns then_part interp PTR(Env) envelse returns else_part
+    if (test_part->interp(env)->is_true()) {
+        return then_part->interp( env);
         //does it need delete for memory leaks?
     }
-    return else_part->interp();
+    return else_part->interp(env);
 }
     
 PTR(Expr) IfExpr::subst(std::string st, PTR(Expr) e)  {
@@ -449,10 +457,10 @@ bool EqExpr::equals( PTR(Expr) rhs)  {
     return false;
 }
 
-PTR(Val) EqExpr::interp()  {
+PTR(Val) EqExpr::interp(PTR(Env) env)  {
     //check if needs to delete to prevent memory leak
     //returns a boolean comparison result from lhs and rhs
-    return NEW (BoolVal)(left->interp()->equals(right->interp()));
+    return NEW (BoolVal)(left->interp(env)->equals(right->interp(env)));
 }
 
 PTR(Expr) EqExpr::subst(std::string st, PTR(Expr) e)  {
@@ -510,9 +518,9 @@ bool FunExpr::equals( PTR(Expr) rhs)  {
     return false;
 }
 
-PTR(Val) FunExpr::interp()  {
+PTR(Val) FunExpr::interp(PTR(Env) env)  {
     //this is kind of redunctant I think
-    return NEW (FunVal)(formal_arg, body);
+    return NEW (FunVal)(formal_arg, body, env);
 }
 
 PTR(Expr) FunExpr::subst(std::string st, PTR(Expr) e)  {
@@ -576,10 +584,10 @@ bool CallExpr::equals( PTR(Expr) rhs)  {
     return false;
 }
 
-PTR(Val) CallExpr::interp()  {
-    //returns interp called recursively for both expressions
+PTR(Val) CallExpr::interp(PTR(Env) env)  {
+    //returns interp PTR(Env) envcalled recursively for both expressions
     //and calling call method ---
-    return to_be_called->interp()->call(actual_arg->interp());
+    return to_be_called->interp(env)->call(actual_arg->interp(env));
 }
 
 PTR(Expr) CallExpr::subst(std::string st, PTR(Expr) e)  {
