@@ -18,7 +18,8 @@
 * \date 06-02-2024
 */
 int main(int argc, char* argv[]) {
-    run_mode_t type = use_arguments(argc, argv);
+    const char* filename = nullptr;
+    run_mode_t type = use_arguments(argc, argv, &filename);
 
     if (type == do_tests) {
         int result = Catch::Session().run(1, argv);
@@ -37,7 +38,14 @@ int main(int argc, char* argv[]) {
         exit(0);
     }
     try {
-        PTR(Expr) expr = parse(std::cin);
+        PTR(Expr) expr;
+        if (filename != nullptr) {
+            std::ifstream f_in(filename);
+            expr = parse_expr(f_in);
+        } else {
+            expr = parse(std::cin);
+        }
+        
         if (type == do_interp) {
             PTR(Val) result = expr->interp(Env::empty);
             std::cout << result->to_string() << std::endl;

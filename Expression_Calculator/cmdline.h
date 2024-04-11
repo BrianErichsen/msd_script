@@ -19,6 +19,6 @@ typedef enum {
  * \param argc Number of command line arguments.
  * \param argv Array of command line argument strings.
  */
-run_mode_t use_arguments(int argc, char* argv[]);
+run_mode_t use_arguments(int argc, char* argv[], const char** filename);
 
 #endif //CMDLINE_H

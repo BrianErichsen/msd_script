@@ -7,7 +7,7 @@
 #include "expr.h"
 #include "cmdline.h"
 
-run_mode_t use_arguments(int argc, char* argv[]) {
+run_mode_t use_arguments(int argc, char* argv[], const char** filename) {
     bool testFlag = false;
 
     for (int i = 1; i < argc; i++) {
@@ -31,6 +31,8 @@ run_mode_t use_arguments(int argc, char* argv[]) {
             return do_print;
         } else if(strcmp(argv[i], "--pretty-print") == 0) {
             return do_pretty_print;
+        } else if (i == 2) {
+            *filename = argv[i];
         } else {
             //if reached here; then given argument is invalid
             std::cerr << "Error: Unknown argument '" << argv[i] <<
