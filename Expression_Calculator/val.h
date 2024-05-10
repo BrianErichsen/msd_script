@@ -17,6 +17,7 @@ CLASS(Val) {
 public:
     virtual PTR(Expr) to_expr()  = 0;
     virtual PTR(Val) add_to( PTR(Val) rhs)  = 0;
+    virtual PTR(Val) subt_to(PTR(Val) rhs) = 0;
     virtual PTR(Val) mult_with( PTR(Val) rhs)  = 0;
     virtual PTR(Val) div_with(PTR(Val) rhs) = 0;
     virtual std::string to_string()  = 0;
@@ -35,6 +36,7 @@ public:
     NumVal(int v);//public ructor that takes a val as input
     PTR(Expr) to_expr()  override;
     PTR(Val) add_to( PTR(Val) rsh)  override;
+    PTR(Val) subt_to(PTR(Val) rhs) override;
     PTR(Val) mult_with( PTR(Val) rhs)  override;
     PTR(Val) div_with(PTR(Val) rhs) override;
     std::string to_string()  override;
@@ -51,6 +53,7 @@ public:
     BoolVal(bool v);
     PTR(Expr) to_expr()  override;
     PTR(Val) add_to( PTR(Val) rsh)  override;
+    PTR(Val) subt_to(PTR(Val) rhs) override;
     PTR(Val) mult_with( PTR(Val) rhs)  override;
     PTR(Val) div_with(PTR(Val) rhs) override;
     std::string to_string()  override;
@@ -69,6 +72,7 @@ public:
     FunVal(std::string arg, PTR(Expr) body_, PTR(Env) env_);
     PTR(Expr) to_expr()  override;
     PTR(Val) add_to( PTR(Val) rsh)  override;
+    PTR(Val) subt_to(PTR(Val) rhs) override;
     PTR(Val) mult_with( PTR(Val) rhs)  override;
     PTR(Val) div_with(PTR(Val) rhs) override;
     std::string to_string()  override;

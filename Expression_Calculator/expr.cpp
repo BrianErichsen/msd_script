@@ -609,3 +609,46 @@ std::streampos &pos) {
         os << ")";
     }
 }
+//End of Division class implementation //
+//-------------------------------------//
+
+//Beginning of the Subtraction class implementation
+Subt::Subt(PTR(Expr) l, PTR(Expr) r) : left(l) , right(r) {}
+
+PTR(Val) Subt::interp(PTR(Env) env) {
+    return left->interp(env)->subt_to(right->interp(env));
+}
+
+bool Subt::equals(PTR(Expr) other) {
+    if (PTR(Subt) otherSubt = CAST (Subt)(other)) {
+        return left->equals(otherSubt->left) && right->equals(otherSubt->right);
+    }
+    return false;
+}
+
+PTR(Expr) Subt::subst(std::string st, PTR(Expr) e) {
+    return NEW (Subt)(left->subst(st, e), right->subst(st, e));
+}
+
+void Subt::print(std::ostream& os) {
+    os << "(";
+    left->print(os);
+    os << "-";
+    right->print(os);
+    os << ")";
+}
+
+void Subt::pretty_print(std::ostream& os, precedence_t p, bool let_needs_parenthesesis,
+std::streampos &pos) {
+    bool print_parent = prec_add <= p;
+    if (print_parent) {
+        os << "(";
+    }
+    this->left->pretty_print(os, static_cast<precedence_t>(prec_add + 1),
+    true, pos);
+    os << " - ";
+    this->right->pretty_print(os, prec_equal, let_needs_parenthesesis && !print_parent, pos);
+    if (print_parent) {
+        os << ")";
+    }
+}

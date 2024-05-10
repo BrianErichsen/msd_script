@@ -78,7 +78,7 @@ class Num : public Expr {
 
 
     public:
-    //r uctor
+    
     Num(int val);
     /**
      * \brief Evaluates the numeric a nt expression.
@@ -163,8 +163,23 @@ class Add : public Expr {
     PTR(Expr) right;///< Right operand of the addition.
 
     public:
-    //r uctor
+    
     Add(PTR(Expr) l, PTR(Expr) r);
+    PTR(Val) interp(PTR(Env) env)   override;
+    bool equals(  PTR(Expr) other)   override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
+    void print(std::ostream& os)   override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
+};
+
+class Subt : public Expr {
+    private:
+    PTR(Expr) left;///< Left operand of the subtraction.
+    PTR(Expr) right;///< Right operand of the subtraction.
+
+    public:
+    //
+    Subt(PTR(Expr) l, PTR(Expr) r);
     PTR(Val) interp(PTR(Env) env)   override;
     bool equals(  PTR(Expr) other)   override;
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;

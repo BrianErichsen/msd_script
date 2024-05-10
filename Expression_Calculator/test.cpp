@@ -505,3 +505,13 @@ TEST_CASE("Division class") {
       NEW (NumVal)(5)));
   }
 }
+TEST_CASE("Subtraction class") {
+  SECTION("methods") {
+    CHECK( (NEW (Subt)(NEW (Num)(10), NEW (Num)(2)))
+        ->interp(Env::empty)->equals(NEW (NumVal)(8)));
+  }
+  SECTION("parsing") {
+    CHECK(parse_str("10 - 2")->interp(Env::empty)->equals(
+      NEW (NumVal)(8)));
+  }
+}

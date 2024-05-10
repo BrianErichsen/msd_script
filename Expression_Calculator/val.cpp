@@ -24,7 +24,15 @@ PTR(Val) NumVal::add_to( PTR(Val) rhs)  {
     if ( PTR(NumVal) otherNum = CAST( NumVal) (rhs)) {
         return NEW(NumVal) ((unsigned) val + (unsigned) otherNum->val);
     } else {
-        throw std::runtime_error("Addition of non-numbers");
+        throw std::runtime_error("Addition of non-numbers!");
+    }
+}
+
+PTR(Val) NumVal::subt_to(PTR(Val) rhs) {
+    if (PTR(NumVal) otherNum = CAST( NumVal) (rhs)) {
+        return NEW(NumVal) ((unsigned) val - (unsigned) otherNum->val);
+    } else {
+        throw std::runtime_error("Subtraction of non-numbers!");
     }
 }
 
@@ -92,6 +100,10 @@ PTR(Val) BoolVal::add_to( PTR(Val) rhs)  {
     throw std::runtime_error("Addition of non numbers!");
 }
 
+PTR(Val) BoolVal::subt_to(PTR(Val) rhs) {
+    throw std::runtime_error("Subtraction of non numbers!");
+}
+
 PTR(Val) BoolVal::mult_with( PTR(Val) rhs)  {
     throw std::runtime_error("Multiplication of non numbers!");
 }
@@ -142,6 +154,10 @@ bool FunVal::equals(PTR(Val) rhs)  {
 
 PTR(Val) FunVal::add_to( PTR(Val) rsh)  {
     throw std::runtime_error("Addition of non numbers!");
+}
+
+PTR(Val) FunVal::subt_to( PTR(Val) rhs)  {
+    throw std::runtime_error("Subtraction of non numbers!");
 }
 
 PTR(Val) FunVal::mult_with( PTR(Val) rhs)  {

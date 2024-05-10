@@ -296,7 +296,12 @@ PTR(Expr) parse_comparg(std::istream &in) {
         PTR(Expr) right = parse_comparg(in);
         //returs new addition expression
         return NEW (Add)(left, right);
-    }//else no addition expr simply returns the lhs
+    } else if(next == '-') {
+        consume(in, '-');
+        PTR(Expr) right = parse_comparg(in);
+        return NEW (Subt)(left, right);
+    }
+    //else no addition expr simply returns the lhs
     return left;
 }
 //helper method to check for let, fun, if expressions
