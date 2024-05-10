@@ -1,6 +1,6 @@
 /*Author: Brian Erichsen Fagundes                            //
 // MSD Script Expression Calculator                          //
-// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+//Spring 2024                                                */
 
 #include "val.h"
 #include "expr.h"
@@ -32,7 +32,15 @@ PTR(Val) NumVal::mult_with( PTR(Val) rhs)  {
     if ( PTR(NumVal) otherNum = CAST( NumVal) (rhs)) {
         return NEW(NumVal) ((unsigned)val * (unsigned)otherNum->val);
     } else {
-        throw std::runtime_error("Multiplication of non-numbers");
+        throw std::runtime_error("Multiplication of non-numbers!");
+    }
+}
+
+PTR(Val) NumVal::div_with(PTR(Val) rhs) {
+    if (PTR(NumVal) otherNum = CAST(NumVal) (rhs)) {
+        return NEW(NumVal) ((unsigned)val / (unsigned)otherNum->val);
+    } else {
+        throw std::runtime_error("Division of non-numbers!");
     }
 }
 
@@ -88,6 +96,10 @@ PTR(Val) BoolVal::mult_with( PTR(Val) rhs)  {
     throw std::runtime_error("Multiplication of non numbers!");
 }
 
+PTR(Val) BoolVal::div_with(PTR(Val) rhs) {
+    throw std::runtime_error("Division of non numbers!");
+}
+
 std::string BoolVal::to_string()  {
     //no parenthesis for true or false //
     //if val is true then prints true and so forth
@@ -134,6 +146,10 @@ PTR(Val) FunVal::add_to( PTR(Val) rsh)  {
 
 PTR(Val) FunVal::mult_with( PTR(Val) rhs)  {
     throw std::runtime_error("Multiplication of non numbers!");
+}
+
+PTR(Val) FunVal::div_with(PTR(Val) rhs) {
+    throw std::runtime_error("Division of non numbers!");
 }
 
 std::string FunVal::to_string()  {

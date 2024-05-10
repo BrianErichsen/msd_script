@@ -1,6 +1,6 @@
 /*Author: Brian Erichsen Fagundes                            //
 // MSD Script Expression Calculator                          //
-// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+//Spring 2024                                                */
 
 #include <iostream>
 #include <cstdlib>

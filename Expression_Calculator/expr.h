@@ -1,6 +1,6 @@
 /*Author: Brian Erichsen Fagundes                            //
 // MSD Script Expression Calculator                          //
-// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+//Spring 2024                                                */
 
 #ifndef EXPR_H
 #define EXPR_H
@@ -181,6 +181,21 @@ class Mul : public Expr {
 
     public:
     Mul(PTR(Expr) l, PTR(Expr) r);
+    PTR(Val) interp(PTR(Env) env)   override;
+    bool equals(  PTR(Expr) other)   override;
+    PTR(Expr) subst(std::string st, PTR(Expr) e)   override;
+    void print(std::ostream& os)   override;
+    void pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis, std::streampos &pos) override;
+};
+
+class Div : public Expr {
+    private:
+    PTR(Expr) left;///< Left operand of the division.
+    PTR(Expr) right;///< Right operand of the division.
+
+    public:
+    //
+    Div(PTR(Expr) l, PTR(Expr) r);
     PTR(Val) interp(PTR(Env) env)   override;
     bool equals(  PTR(Expr) other)   override;
     PTR(Expr) subst(std::string st, PTR(Expr) e)   override;

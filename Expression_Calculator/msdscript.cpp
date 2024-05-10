@@ -1,6 +1,6 @@
 /*Author: Brian Erichsen Fagundes                            //
 // MSD Script Expression Calculator                          //
-// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+//Spring 2024                                                */
 
 #define CATCH_CONFIG_RUNNER
 #include "cmdline.h"

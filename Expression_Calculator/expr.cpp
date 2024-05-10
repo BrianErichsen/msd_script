@@ -1,6 +1,6 @@
 /*Author: Brian Erichsen Fagundes                            //
 // MSD Script Expression Calculator                          //
-// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+//Spring 2024                                                */
 
 #include <stdexcept>
 #include "expr.h"
@@ -9,8 +9,6 @@
 #include "val.h"
 #include "pointer.h"
 #include "env.h"
-
-
 
 std::string Expr::to_string() {
     std::stringstream st("");
@@ -100,17 +98,6 @@ void VarExpr::pretty_print(std::ostream& os, precedence_t p, bool let_needs_pare
 Add::Add(PTR(Expr) l, PTR(Expr) r) : left(l), right(r) {}
 
 PTR(Val) Add::interp(PTR(Env) env)  {
-    // PTR(Val) leftVal = left->interp(PTR(Env) env);
-    // PTR(Val) rightVal = right->interp(PTR(Env) env);
-
-    // PTR(Val) result = leftVal->add_to(rightVal);
-    
-    //prevents memory leak
-    // delete leftVal;
-    // delete rightVal;
-
-    // return leftVal->add_to(rightVal);
-    // return result;
     return left->interp(env)->add_to(right->interp(env));
 }
 bool Add::equals( PTR(Expr) other)  {
@@ -579,4 +566,46 @@ bool let_needs_parenthesesis, std::streampos &pos) {
     os << "(";
     actual_arg->pretty_print(os, prec_none, false, pos);
     os << ")";
+}
+
+//Beguinning of Division class implementation -----
+Div::Div(PTR(Expr) l, PTR(Expr) r) : left(l), right(r) {}
+
+PTR(Val) Div::interp(PTR(Env) env) {
+    return left->interp(env)->div_with(right->interp(env));
+}
+
+bool Div::equals(PTR(Expr) other) {
+    if (PTR(Div) otherDiv = CAST(Div) (other)) {
+        return left->equals(otherDiv->left) && right->equals(otherDiv->right);
+    }
+    return false;
+}
+
+PTR(Expr) Div::subst(std::string st, PTR(Expr) e) {
+    return NEW (Div) (left->subst(st, e), right->subst(st, e));
+}
+
+void Div::print(std::ostream& os) {
+    os << "(";
+    left->print(os);
+    os << "/";
+    right->print(os);
+    os << ")";
+}
+
+void Div::pretty_print(std::ostream &os, precedence_t p, bool let_needs_parenthesesis,
+std::streampos &pos) {
+    bool unparethesis = p < prec_mult;
+    if (p > prec_mult) {
+        let_needs_parenthesesis = false;
+        os << "(";
+    }
+    left->pretty_print(os, static_cast<precedence_t>(prec_mult + 1),
+    true, pos);
+    os << "/";
+    right->pretty_print(os, prec_mult, unparethesis && let_needs_parenthesesis, pos);
+    if (p > prec_mult) {
+        os << ")";
+    }
 }

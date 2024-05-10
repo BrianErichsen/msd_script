@@ -1,10 +1,12 @@
 /*Author: Brian Erichsen Fagundes                            //
 // MSD Script Expression Calculator                          //
-// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+//Spring 2024                                                */
 
 #include <iostream>
 #include "parse.h"
 #include <stack>
+#include <sstream>
+
 
 PTR(Expr) parse_expr(std::istream &in) {
     //creates an expression to represent lhs
@@ -155,6 +157,11 @@ PTR(Expr) parse_addend(std::istream &in) {
         PTR(Expr) rhs = parse_addend(in);
         //returns new mult with both left and right based on created expr
         return NEW (Mul)(expr, rhs);
+    } else if (next == '/') {
+        consume(in, '/');
+        skip_whitespace(in);
+        PTR(Expr) rhs = parse_addend(in);
+        return NEW (Div) (expr, rhs);
     } else
         //handle "<expr> <expr> error ---"
         return expr;
@@ -173,63 +180,6 @@ PTR(Expr) parse_multicand(std::istream &in) {
         expr = NEW (CallExpr)(expr, actual_arg);
     }
     return expr;
-    // std::string keyword;
-    // skip_whitespace(in);
-
-    // int next = in.peek();
-    // //if next is negative or any number then recursively parses it
-    // if ((next == '-') || (isdigit(next))) {
-    //     return parse_num(in);
-    // }
-    // //if given parentheses then parses inner expression
-    // else if (next == '(') {
-    //     //consumes opening parenthesis
-    //     consume(in, '(');
-    //     //parses given expression after parenthesis
-    //     Expr* expr = parse_expr(in);
-    //     //skips any next spaces
-    //     skip_whitespace(in);
-        
-    //     // gets next char from input
-    //     next = in.get();
-    //     //checks for closing brackets and if not throws an error
-    //     if (next != ')') {
-    //         throw std::runtime_error("Missing closing pararenthesis");
-    //     }
-    //     //returns new parsed expr
-    //     return expr;
-    // }
-    // //if next is a char -- then calls for parse_var method
-    // else if (isalpha(next)) {
-    //     return parse_var(in);
-    // }
-    // //if '_' char -- then calls for parse_let method
-    // else if (next == '_') {
-    //     consume(in, '_');
-    //     keyword = parse_keyword(in);
-        
-    //     if (keyword == "let") {
-    //         return parse_let(in);
-    //     }
-    //     else if (keyword == "if") {
-    //         return parse_if(in);
-    //     }
-    //     else if (keyword == "true") {
-    //         return new BoolExpr(true);
-    //     }
-    //     else if (keyword == "false") {
-    //         return new BoolExpr(false);
-    //     }
-    //     else if (keyword == "fun") {
-    //         return parse_fun(in);
-    //     }
-
-    // }
-    // else {
-    //     consume(in, next);
-    //     throw std::runtime_error("Invalid input from multicand parser");
-    // }
-
 }//end of parse-multicand method
 
 PTR(Expr) parse_inner(std::istream &in) {
@@ -364,4 +314,9 @@ std::string parse_keyword(std::istream &in) {
         break;//end of letters then breaks while loop
     }
     return keyword;//returns new formed keyword
+}
+//helper method for using qt tool
+PTR(Expr) parse_string(std::string s) {
+    std::istringstream in(s);
+    return parse_expr(in);
 }

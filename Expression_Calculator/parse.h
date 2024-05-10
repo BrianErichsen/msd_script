@@ -1,9 +1,10 @@
 /*Author: Brian Erichsen Fagundes                            //
 // MSD Script Expression Calculator                          //
-// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+//Spring 2024                                                */
 
 #ifndef parse_h
 #include "expr.h"
+#include <string>
 #define parse_h
 
 PTR(Expr) parse_num(std::istream &in);
@@ -21,5 +22,6 @@ PTR(Expr) parse_comparg(std::istream &in);
 PTR(Expr) parse_inner(std::istream &in);
 static void consumeWord(std::istream &in, std::string word);
 std::string parse_keyword(std::istream &in);
+PTR(Expr) parse_string(std::string s);
 
 #endif

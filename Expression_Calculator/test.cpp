@@ -1,6 +1,6 @@
 /*Author: Brian Erichsen Fagundes                            //
 // MSD Script Expression Calculator                          //
-// MSD - UofU - CS6015 Software Engineering - Spring semester*/
+//Spring 2024                                                */
 
 // #define CATCH_CONFIG_RUNNER
 #include "catch.h"
@@ -493,5 +493,15 @@ TEST_CASE("CallExpr and FunExpr") {
     "                  _else x * factr1(factr1)(x + -1)\n"
     "_in  factr1(factr1)(10)";
     CHECK(fac->to_pretty_string() == fac1);
+  }
+}
+TEST_CASE("Division class") {
+  SECTION("methods") {
+    CHECK( (NEW (Div)(NEW (Num)(10), NEW (Num)(2)))
+        ->interp(Env::empty)->equals(NEW (NumVal)(5)));
+  }
+  SECTION("parsing") {
+    CHECK(parse_str("10 / 2")->interp(Env::empty)->equals(
+      NEW (NumVal)(5)));
   }
 }
