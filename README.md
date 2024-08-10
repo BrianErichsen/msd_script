@@ -25,3 +25,7 @@ Example 2 using a _fun expression:
 
 Example 3 using a _fun expression:
  (_fun (x) x + 1)(24) --> 25;
+
+An example of the application solving for the fibonnaci sequence of 30.
+The application accepts either input from the user or a file upload that contains the expression desired to be solved!
+ <img width="1440" alt="Screenshot 2024-08-09 at 10 51 09 PM" src="https://github.com/user-attachments/assets/5f39613e-d3cf-4980-be1c-06f15e433647">
